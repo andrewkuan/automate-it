@@ -3,29 +3,7 @@ import AIBar from "./AIBar";
 import WorkflowBlueprint from "./WorkflowBlueprint";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
-
-interface WorkflowStep {
-  node_name: string;
-  node_type: "trigger" | "action" | "condition" | "ai";
-  tool: string;
-  description: string;
-}
-
-interface ResultData {
-  automate_score: number;
-  ai_needed_percent: number;
-  why: string;
-  biggest_bottleneck: string;
-  suggested_approach: string;
-  time_to_build_hours: number;
-  tools_required?: (string | { name: string; purpose?: string })[];
-  codewords_prompt?: string;
-  recommended_tool?: string;
-  recommendation_reason?: string;
-  workflow_steps?: WorkflowStep[];
-  effort_score?: number;
-  impact_score?: number;
-}
+import { ResultData } from "@/types/analysis";
 
 interface ResultCardProps {
   data: ResultData;

@@ -3,29 +3,10 @@ import { Loader2, Zap } from "lucide-react";
 import { toast } from "sonner";
 import ResultCard from "@/components/ResultCard";
 import EffortImpactMatrix from "@/components/EffortImpactMatrix";
+import SearchHistory from "@/components/SearchHistory";
 import { supabase } from "@/integrations/supabase/client";
-
-interface ResultData {
-  automate_score: number;
-  ai_needed_percent: number;
-  why: string;
-  biggest_bottleneck: string;
-  suggested_approach: string;
-  time_to_build_hours: number;
-  tools_required?: (string | { name: string; purpose?: string })[];
-  codewords_prompt?: string;
-  recommended_tool?: string;
-  recommendation_reason?: string;
-  workflow_steps?: { node_name: string; node_type: "trigger" | "action" | "condition" | "ai"; tool: string; description: string }[];
-  effort_score?: number;
-  impact_score?: number;
-}
-
-interface TaskPoint {
-  label: string;
-  effort: number;
-  impact: number;
-}
+import { ResultData, TaskPoint, HistoryEntry } from "@/types/analysis";
+import { getHistory, addToHistory } from "@/lib/history";
 
 const placeholderExamples = [
   "Every Monday I manually export a CSV from our CRM, clean the data in Excel, and upload it to Google Sheets for the sales team...",
@@ -37,13 +18,11 @@ const placeholderExamples = [
 
 /** Condense a task description into a short 2-3 word label */
 const summarizeTask = (text: string): string => {
-  // Strip filler openings
   const cleaned = text
     .replace(/^(every\s+(morning|day|week|monday|evening)\s+i\s+)/i, "")
     .replace(/^(i\s+(spend|manually|have to|need to)\s+)/i, "")
     .replace(/^(each\s+\w+\s+i\s+)/i, "")
     .trim();
-  // Take first 3 meaningful words
   const words = cleaned.split(/\s+/).filter((w) => w.length > 1).slice(0, 3);
   const label = words.join(" ");
   return label.length > 24 ? label.slice(0, 22) + "…" : label;
@@ -53,6 +32,7 @@ const Index = () => {
   const [task, setTask] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ResultData | null>(null);
+  const [history, setHistory] = useState<HistoryEntry[]>(() => getHistory());
   const [taskPoints, setTaskPoints] = useState<TaskPoint[]>(() => {
     try {
       const stored = sessionStorage.getItem("effort-impact-tasks");
@@ -118,21 +98,32 @@ const Index = () => {
     setResult(null);
 
     try {
-      // Fire both calls in parallel — summarize with fast model while main analysis runs
       const [analyzeResult, summarizeResult] = await Promise.all([
         supabase.functions.invoke("analyze-task", { body: { task: description } }),
         supabase.functions.invoke("summarize-task", { body: { task: description } }),
       ]);
 
       if (analyzeResult.error) throw analyzeResult.error;
-      const data = analyzeResult.data;
+      const data = analyzeResult.data as ResultData;
+      const label = summarizeResult.data?.label || summarizeTask(description);
+
       setResult(data);
 
+      // Save to history
+      const entry: HistoryEntry = {
+        id: crypto.randomUUID(),
+        task: description,
+        label,
+        result: data,
+        timestamp: Date.now(),
+      };
+      const updatedHistory = addToHistory(entry);
+      setHistory(updatedHistory);
+
+      // Store effort/impact for matrix
       if (data.effort_score != null && data.impact_score != null) {
-        const label =
-          summarizeResult.data?.label || summarizeTask(description);
         setTaskPoints((prev) => {
-          const updated = [...prev, { label, effort: data.effort_score, impact: data.impact_score }];
+          const updated = [...prev, { label, effort: data.effort_score!, impact: data.impact_score! }];
           sessionStorage.setItem("effort-impact-tasks", JSON.stringify(updated));
           return updated;
         });
@@ -144,12 +135,16 @@ const Index = () => {
     }
   };
 
+  const handleReview = (entry: HistoryEntry) => {
+    setTask(entry.task);
+    setResult(entry.result);
+  };
+
   const hasResult = !!result;
   const isFullResult = hasResult && result.automate_score >= 50;
 
   return (
     <div className="min-h-screen bg-background flex flex-col px-4 py-6 md:py-10">
-      {/* Header — collapses when result exists */}
       {!hasResult ? (
         <div className="flex flex-col items-center w-full max-w-2xl mx-auto space-y-10 pt-8 md:pt-14">
           <div className="text-center space-y-3">
@@ -166,7 +161,6 @@ const Index = () => {
             </p>
           </div>
 
-          {/* Full-size input */}
           <div className="w-full space-y-4">
             <div className="relative">
               <textarea
@@ -201,6 +195,15 @@ const Index = () => {
               )}
             </button>
           </div>
+
+          {/* History on landing page */}
+          <div className="w-full">
+            <SearchHistory
+              history={history}
+              onHistoryChange={setHistory}
+              onReview={handleReview}
+            />
+          </div>
         </div>
       ) : (
         <>
@@ -213,7 +216,6 @@ const Index = () => {
               </span>
             </div>
 
-            {/* Compact input */}
             <div className="flex-1 flex items-center gap-2 max-w-xl">
               <input
                 type="text"
@@ -237,33 +239,25 @@ const Index = () => {
           {/* Results area */}
           <div className="w-full max-w-6xl mx-auto space-y-6">
             {isFullResult ? (
-              <>
-                {/* Two-column: left = verdict, right = matrix + details */}
-                <div className="grid lg:grid-cols-[1fr_1fr] gap-6">
-                  {/* Left: core verdict sections */}
-                  <ResultCard data={result} taskDescription={task} section="verdict" />
-
-                  {/* Right: matrix + detail sections */}
-                  <div className="space-y-6">
-                    {taskPoints.length >= 2 ? (
-                      <div className="rounded-xl bg-card border border-border gradient-border p-6 space-y-4 animate-fade-up">
-                        <h3 className="text-xs font-semibold uppercase tracking-widest text-primary">
-                          Effort vs Impact Matrix
-                        </h3>
-                        <EffortImpactMatrix tasks={taskPoints} />
-                      </div>
-                    ) : (
-                      <div className="rounded-xl bg-card border border-border gradient-border p-6 flex items-center justify-center text-muted-foreground text-sm animate-fade-up">
-                        Analyze 2+ tasks to see the Effort vs Impact matrix
-                      </div>
-                    )}
-
-                    <ResultCard data={result} taskDescription={task} section="details" />
-                  </div>
+              <div className="grid lg:grid-cols-[1fr_1fr] gap-6">
+                <ResultCard data={result} taskDescription={task} section="verdict" />
+                <div className="space-y-6">
+                  {taskPoints.length >= 2 ? (
+                    <div className="rounded-xl bg-card border border-border gradient-border p-6 space-y-4 animate-fade-up">
+                      <h3 className="text-xs font-semibold uppercase tracking-widest text-primary">
+                        Effort vs Impact Matrix
+                      </h3>
+                      <EffortImpactMatrix tasks={taskPoints} />
+                    </div>
+                  ) : (
+                    <div className="rounded-xl bg-card border border-border gradient-border p-6 flex items-center justify-center text-muted-foreground text-sm animate-fade-up">
+                      Analyze 2+ tasks to see the Effort vs Impact matrix
+                    </div>
+                  )}
+                  <ResultCard data={result} taskDescription={task} section="details" />
                 </div>
-              </>
+              </div>
             ) : (
-              /* Low-score: simple centered card */
               <div className="max-w-2xl mx-auto">
                 <ResultCard data={result} taskDescription={task} section="all" />
                 {taskPoints.length >= 2 && (
@@ -276,6 +270,13 @@ const Index = () => {
                 )}
               </div>
             )}
+
+            {/* History below results */}
+            <SearchHistory
+              history={history}
+              onHistoryChange={setHistory}
+              onReview={handleReview}
+            />
           </div>
         </>
       )}
