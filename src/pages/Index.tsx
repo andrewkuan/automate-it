@@ -18,6 +18,27 @@ const Index = () => {
   const [task, setTask] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ResultData | null>(null);
+  const [loadingText, setLoadingText] = useState("Analyzing...");
+
+  useEffect(() => {
+    if (!loading) {
+      setLoadingText("Analyzing...");
+      return;
+    }
+    const phrases = [
+      "Analyzing...",
+      "Evaluating complexity...",
+      "Checking automation potential...",
+      "Crunching the numbers...",
+      "Almost there...",
+    ];
+    let i = 0;
+    const interval = setInterval(() => {
+      i = (i + 1) % phrases.length;
+      setLoadingText(phrases[i]);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -88,7 +109,7 @@ const Index = () => {
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Analyzing...
+                {loadingText}
               </>
             ) : (
               "Analyze Task"
