@@ -181,8 +181,17 @@ const Index = () => {
                 value={task}
                 onChange={(e) => setTask(e.target.value)}
                 rows={5}
-                className="w-full rounded-xl bg-card border border-border px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 resize-none transition-shadow gradient-border"
+                className="w-full rounded-xl bg-card border border-border px-4 py-3 pb-10 text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 resize-none transition-shadow gradient-border"
               />
+              <button
+                type="button"
+                onClick={toggleListening}
+                disabled={isProcessing}
+                className={`absolute bottom-3 right-3 p-1.5 rounded-lg transition-colors ${isListening ? "bg-destructive/20 text-destructive" : isProcessing ? "bg-primary/20 text-primary animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
+                title={isProcessing ? "Transcribing..." : isListening ? "Stop dictation" : "Start dictation"}
+              >
+                {isProcessing ? <AudioLines className="w-4 h-4" /> : isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              </button>
               {!task && (
                 <div
                   className="absolute top-0 left-0 px-4 py-3 text-muted-foreground pointer-events-none transition-opacity duration-700 ease-in-out"
@@ -240,6 +249,14 @@ const Index = () => {
                 className="flex-1 rounded-lg bg-card border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 transition-shadow"
               />
               <button
+                onClick={toggleListening}
+                disabled={isProcessing}
+                className={`shrink-0 p-2 rounded-lg transition-colors ${isListening ? "bg-destructive/20 text-destructive" : isProcessing ? "bg-primary/20 text-primary animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
+                title={isProcessing ? "Transcribing..." : isListening ? "Stop dictation" : "Start dictation"}
+              >
+                {isProcessing ? <AudioLines className="w-4 h-4" /> : isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              </button>
+              <button
                 onClick={() => handleSubmit()}
                 disabled={loading || !task.trim()}
                 className="shrink-0 flex items-center justify-center gap-1.5 rounded-lg bg-primary text-primary-foreground font-semibold py-2 px-4 text-sm hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
@@ -249,22 +266,6 @@ const Index = () => {
               </button>
             </div>
           </div>
-
-          {/* Floating mic button - bottom right */}
-          <button
-            onClick={toggleListening}
-            disabled={isProcessing}
-            className={`fixed bottom-6 right-6 z-50 flex items-center justify-center w-12 h-12 rounded-full shadow-lg transition-all ${
-              isListening
-                ? "bg-destructive text-destructive-foreground scale-110"
-                : isProcessing
-                ? "bg-primary text-primary-foreground animate-pulse"
-                : "bg-primary text-primary-foreground hover:opacity-90 hover:scale-105"
-            }`}
-            title={isProcessing ? "Transcribing..." : isListening ? "Stop dictation" : "Start dictation"}
-          >
-            {isProcessing ? <AudioLines className="w-5 h-5" /> : isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-          </button>
           {/* Task summary title */}
           {currentLabel && (
             <div className="flex flex-col items-center gap-1 mb-2">
