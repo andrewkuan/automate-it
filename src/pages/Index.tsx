@@ -14,11 +14,33 @@ interface ResultData {
 
 // API call proxied through edge function
 
+const placeholderExamples = [
+  "Every Monday I manually export a CSV from our CRM, clean the data in Excel, and upload it to Google Sheets for the sales team...",
+  "I spend 30 minutes each day copying invoice data from emails into our accounting software...",
+  "Each week I manually check 50+ websites for price changes and update a spreadsheet...",
+  "I have a 30 minute call with each new client to understand their business before we start working together.",
+  "Every morning I compile reports from three different tools and send a summary email to the team...",
+];
+
 const Index = () => {
   const [task, setTask] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ResultData | null>(null);
   const [loadingText, setLoadingText] = useState("Analyzing...");
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [placeholderVisible, setPlaceholderVisible] = useState(true);
+
+  useEffect(() => {
+    if (task) return;
+    const interval = setInterval(() => {
+      setPlaceholderVisible(false);
+      setTimeout(() => {
+        setPlaceholderIndex((prev) => (prev + 1) % placeholderExamples.length);
+        setPlaceholderVisible(true);
+      }, 400);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [task]);
 
   useEffect(() => {
     if (!loading) {
@@ -94,13 +116,22 @@ const Index = () => {
 
         {/* Input */}
         <div className="space-y-4">
-          <textarea
-            value={task}
-            onChange={(e) => setTask(e.target.value)}
-            placeholder="e.g. Every Monday I manually export a CSV from our CRM, clean the data in Excel, and upload it to Google Sheets for the sales team..."
-            rows={5}
-            className="w-full rounded-xl bg-card border border-border px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 resize-none transition-shadow gradient-border"
-          />
+          <div className="relative">
+            <textarea
+              value={task}
+              onChange={(e) => setTask(e.target.value)}
+              rows={5}
+              className="w-full rounded-xl bg-card border border-border px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 resize-none transition-shadow gradient-border"
+            />
+            {!task && (
+              <div
+                className="absolute top-0 left-0 px-4 py-3 text-muted-foreground pointer-events-none transition-opacity duration-400 ease-in-out"
+                style={{ opacity: placeholderVisible ? 1 : 0 }}
+              >
+                e.g. {placeholderExamples[placeholderIndex]}
+              </div>
+            )}
+          </div>
           <button
             onClick={() => handleSubmit()}
             disabled={loading || !task.trim()}
