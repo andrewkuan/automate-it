@@ -58,13 +58,14 @@ const EffortImpactMatrix = ({ tasks }: EffortImpactMatrixProps) => {
             type="number"
             dataKey="effort"
             domain={[0, 100]}
-            tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
-            stroke="hsl(var(--border))"
+            tick={false}
+            axisLine={false}
+            tickLine={false}
           >
             <Label
               value="Effort →"
               position="bottom"
-              offset={10}
+              offset={0}
               style={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
             />
           </XAxis>
@@ -72,14 +73,15 @@ const EffortImpactMatrix = ({ tasks }: EffortImpactMatrixProps) => {
             type="number"
             dataKey="impact"
             domain={[0, 100]}
-            tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
-            stroke="hsl(var(--border))"
+            tick={false}
+            axisLine={false}
+            tickLine={false}
           >
             <Label
               value="Impact →"
               angle={-90}
               position="insideLeft"
-              offset={0}
+              offset={10}
               style={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
             />
           </YAxis>
