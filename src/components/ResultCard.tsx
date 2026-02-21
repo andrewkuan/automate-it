@@ -118,7 +118,7 @@ const ResultCard = ({ data, taskDescription, section }: ResultCardProps) => {
       sections.push(
         <div key="codewords">
           <SectionLabel>Build This on CodeWords</SectionLabel>
-          <div className="relative rounded-lg bg-secondary/50 border border-border p-4 font-mono text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+          <div className="relative rounded-lg bg-secondary/50 border border-border p-4 font-mono text-sm text-foreground leading-relaxed whitespace-pre-wrap overflow-x-auto">
             {data.codewords_prompt}
             <button
               onClick={() => {
@@ -152,7 +152,7 @@ const ResultCard = ({ data, taskDescription, section }: ResultCardProps) => {
   /* ── Render based on section prop ── */
   if (section === "verdict") {
     return (
-      <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-6 md:p-8">
+      <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-4 md:p-6 lg:p-8">
         {renderVerdict()}
       </div>
     );
@@ -162,7 +162,7 @@ const ResultCard = ({ data, taskDescription, section }: ResultCardProps) => {
     const details = renderDetails();
     if (!details) return null;
     return (
-      <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-6 md:p-8">
+      <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-4 md:p-6 lg:p-8">
         {details}
       </div>
     );
@@ -170,7 +170,7 @@ const ResultCard = ({ data, taskDescription, section }: ResultCardProps) => {
 
   // section === "all" — low-score fallback
   return (
-    <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-6 md:p-8 space-y-8">
+    <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-4 md:p-6 lg:p-8 space-y-8">
       {renderVerdict()}
       {renderDetails() && (
         <>

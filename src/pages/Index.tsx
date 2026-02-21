@@ -173,7 +173,7 @@ const Index = () => {
               <Zap className="w-3 h-3" />
               Automation Analyzer
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
               Is This Worth{" "}
               <span className="text-primary glow-text">Automating</span>?
             </h1>
@@ -238,10 +238,10 @@ const Index = () => {
       ) : (
         <>
           {/* Compact header bar */}
-          <div className="flex items-center gap-4 w-full max-w-6xl mx-auto mb-6">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4 w-full max-w-6xl mx-auto mb-6">
             <div className="flex items-center gap-2 shrink-0">
               <Zap className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-foreground tracking-tight">
+              <span className="hidden md:inline text-sm font-semibold text-foreground tracking-tight">
                 Automation Analyzer
               </span>
             </div>
@@ -276,9 +276,9 @@ const Index = () => {
           {/* Task summary title */}
           {currentLabel && (
             <div className="flex flex-col items-center gap-1 mb-2">
-              <h2 className="text-xl font-bold text-foreground tracking-tight">{currentLabel}</h2>
+              <h2 className="text-base md:text-xl font-bold text-foreground tracking-tight px-4">{currentLabel}</h2>
               {fullTaskDescription && (
-                <p className="text-sm text-muted-foreground max-w-xl text-center mt-1">{fullTaskDescription}</p>
+                <p className="text-xs md:text-sm text-muted-foreground max-w-xl text-center mt-1 px-4 line-clamp-3 md:line-clamp-none">{fullTaskDescription}</p>
               )}
               <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full mt-1">Current task</span>
             </div>
@@ -287,7 +287,7 @@ const Index = () => {
           {/* Results area */}
           <div className="w-full max-w-6xl mx-auto space-y-6">
             {isFullResult ? (
-              <div className="grid lg:grid-cols-[380px_1fr] gap-6">
+              <div className="grid md:grid-cols-[320px_1fr] lg:grid-cols-[380px_1fr] gap-6">
                 <ResultCard data={result} taskDescription={fullTaskDescription} section="verdict" />
                 <div className="space-y-6">
                   {taskPoints.length >= 2 ? (

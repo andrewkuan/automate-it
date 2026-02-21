@@ -70,7 +70,7 @@ const SearchHistory = ({ history, onHistoryChange, onReview }: SearchHistoryProp
               </span>
               <button
                 onClick={(e) => handleDelete(entry.id, e)}
-                className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all"
+                className="md:opacity-0 md:group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>

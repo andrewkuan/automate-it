@@ -18,7 +18,7 @@ const ScoreDialComponent = ({ score }: ScoreDialProps) => {
       <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
         Automate Score
       </p>
-      <div className="relative w-40 h-40">
+      <div className="relative w-28 h-28 md:w-40 md:h-40">
         <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
           <circle
             cx="50"
@@ -47,7 +47,7 @@ const ScoreDialComponent = ({ score }: ScoreDialProps) => {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span
-            className="text-4xl font-bold font-mono"
+            className="text-3xl md:text-4xl font-bold font-mono"
             style={{ color: getColor(score) }}
           >
             {score}
