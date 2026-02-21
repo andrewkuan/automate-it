@@ -2,17 +2,17 @@ import { useState, useEffect } from "react";
 import { Loader2, Zap } from "lucide-react";
 import { toast } from "sonner";
 import ResultCard from "@/components/ResultCard";
-
+import { supabase } from "@/integrations/supabase/client";
 interface ResultData {
   automate_score: number;
   ai_needed_percent: number;
   why: string;
   biggest_bottleneck: string;
   suggested_approach: string;
-  time_to_build: string;
+  time_to_build_hours: number;
 }
 
-const API_URL = "https://runtime.codewords.ai/run/task_automation_analyzer_439ac03c";
+// API call proxied through edge function
 
 const Index = () => {
   const [task, setTask] = useState("");
@@ -40,15 +40,11 @@ const Index = () => {
     setResult(null);
 
     try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task: description }),
+      const { data, error } = await supabase.functions.invoke("analyze-task", {
+        body: { task: description },
       });
 
-      if (!res.ok) throw new Error("API request failed");
-
-      const data = await res.json();
+      if (error) throw error;
       setResult(data);
     } catch {
       toast.error("Something went wrong. Please try again.");
