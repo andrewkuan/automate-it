@@ -35,6 +35,20 @@ const placeholderExamples = [
   "Every morning I compile reports from three different tools and send a summary email to the team...",
 ];
 
+/** Condense a task description into a short 2-3 word label */
+const summarizeTask = (text: string): string => {
+  // Strip filler openings
+  const cleaned = text
+    .replace(/^(every\s+(morning|day|week|monday|evening)\s+i\s+)/i, "")
+    .replace(/^(i\s+(spend|manually|have to|need to)\s+)/i, "")
+    .replace(/^(each\s+\w+\s+i\s+)/i, "")
+    .trim();
+  // Take first 3 meaningful words
+  const words = cleaned.split(/\s+/).filter((w) => w.length > 1).slice(0, 3);
+  const label = words.join(" ");
+  return label.length > 24 ? label.slice(0, 22) + "…" : label;
+};
+
 const Index = () => {
   const [task, setTask] = useState("");
   const [loading, setLoading] = useState(false);
@@ -112,7 +126,7 @@ const Index = () => {
       setResult(data);
 
       if (data.effort_score != null && data.impact_score != null) {
-        const label = description.split(/\s+/).slice(0, 4).join(" ");
+        const label = summarizeTask(description);
         setTaskPoints((prev) => {
           const updated = [...prev, { label, effort: data.effort_score, impact: data.impact_score }];
           sessionStorage.setItem("effort-impact-tasks", JSON.stringify(updated));
