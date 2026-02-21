@@ -11,7 +11,7 @@ interface ResultData {
   biggest_bottleneck: string;
   suggested_approach: string;
   time_to_build_hours: number;
-  tools_required?: string[];
+  tools_required?: (string | { name: string; purpose?: string })[];
   codewords_prompt?: string;
 }
 
@@ -71,14 +71,17 @@ const ResultCard = ({ data, taskDescription }: ResultCardProps) => {
               Tools You'll Need
             </h3>
             <div className="flex flex-wrap gap-2">
-              {data.tools_required.map((tool) => (
-                <span
-                  key={tool}
-                  className="inline-flex items-center rounded-full bg-secondary text-secondary-foreground px-3 py-1 text-sm font-medium"
-                >
-                  {tool}
-                </span>
-              ))}
+              {data.tools_required.map((tool) => {
+                const name = typeof tool === "string" ? tool : tool.name;
+                return (
+                  <span
+                    key={name}
+                    className="inline-flex items-center rounded-full bg-secondary text-secondary-foreground px-3 py-1 text-sm font-medium"
+                  >
+                    {name}
+                  </span>
+                );
+              })}
             </div>
           </div>
         </>

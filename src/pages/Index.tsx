@@ -10,7 +10,7 @@ interface ResultData {
   biggest_bottleneck: string;
   suggested_approach: string;
   time_to_build_hours: number;
-  tools_required?: string[];
+  tools_required?: (string | { name: string; purpose?: string })[];
   codewords_prompt?: string;
 }
 
