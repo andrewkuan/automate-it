@@ -57,7 +57,7 @@ const CustomDot = (props: any) => {
 
 const EffortImpactMatrix = ({ tasks, activeLabel }: EffortImpactMatrixProps) => {
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 min-w-0 overflow-x-hidden">
       <div className="h-[220px] md:h-[280px]">
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 20, right: 20, bottom: 30, left: 20 }}>
