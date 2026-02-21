@@ -45,6 +45,7 @@ const Index = () => {
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
+  const isListeningRef = useRef(false);
 
   useEffect(() => {
     if (task) return;
@@ -100,7 +101,8 @@ const Index = () => {
       return;
     }
 
-    if (isListening && recognitionRef.current) {
+    if (isListeningRef.current && recognitionRef.current) {
+      isListeningRef.current = false;
       recognitionRef.current.stop();
       setIsListening(false);
       return;
@@ -119,18 +121,34 @@ const Index = () => {
       setTask(transcript);
     };
 
-    recognition.onerror = () => {
-      setIsListening(false);
+    recognition.onerror = (event: any) => {
+      if (event.error === "not-allowed") {
+        isListeningRef.current = false;
+        setIsListening(false);
+      }
     };
 
+    // Auto-restart on silence timeout
     recognition.onend = () => {
-      setIsListening(false);
+      if (isListeningRef.current) {
+        recognition.start();
+      } else {
+        setIsListening(false);
+      }
     };
 
     recognitionRef.current = recognition;
+    isListeningRef.current = true;
     recognition.start();
     setIsListening(true);
   };
+
+  useEffect(() => {
+    return () => {
+      isListeningRef.current = false;
+      recognitionRef.current?.stop();
+    };
+  }, []);
 
   const handleSubmit = async (taskText?: string) => {
     const description = taskText || task;
