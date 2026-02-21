@@ -27,8 +27,6 @@ interface TaskPoint {
   impact: number;
 }
 
-// API call proxied through edge function
-
 const placeholderExamples = [
   "Every Monday I manually export a CSV from our CRM, clean the data in Excel, and upload it to Google Sheets for the sales team...",
   "I spend 30 minutes each day copying invoice data from emails into our accounting software...",
@@ -113,7 +111,6 @@ const Index = () => {
       if (error) throw error;
       setResult(data);
 
-      // Store effort/impact for matrix
       if (data.effort_score != null && data.impact_score != null) {
         const label = description.split(/\s+/).slice(0, 4).join(" ");
         setTaskPoints((prev) => {
@@ -129,73 +126,140 @@ const Index = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-background flex flex-col items-center px-4 py-12 md:py-20">
-      <div className="w-full max-w-2xl space-y-10">
-        {/* Header */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary text-primary text-xs font-mono font-semibold uppercase tracking-widest">
-            <Zap className="w-3 h-3" />
-            Automation Analyzer
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
-            Is This Worth{" "}
-            <span className="text-primary glow-text">Automating</span>?
-          </h1>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            Describe your manual task and get an instant analysis on whether it's worth automating.
-          </p>
-        </div>
+  const hasResult = !!result;
+  const isFullResult = hasResult && result.automate_score >= 50;
 
-        {/* Input */}
-        <div className="space-y-4">
-          <div className="relative">
-            <textarea
-              value={task}
-              onChange={(e) => setTask(e.target.value)}
-              rows={5}
-              className="w-full rounded-xl bg-card border border-border px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 resize-none transition-shadow gradient-border"
-            />
-            {!task && (
-              <div
-                className="absolute top-0 left-0 px-4 py-3 text-muted-foreground pointer-events-none transition-opacity duration-400 ease-in-out"
-                style={{ opacity: placeholderVisible ? 1 : 0 }}
+  return (
+    <div className="min-h-screen bg-background flex flex-col px-4 py-6 md:py-10">
+      {/* Header — collapses when result exists */}
+      {!hasResult ? (
+        <div className="flex flex-col items-center w-full max-w-2xl mx-auto space-y-10 pt-8 md:pt-14">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary text-primary text-xs font-mono font-semibold uppercase tracking-widest">
+              <Zap className="w-3 h-3" />
+              Automation Analyzer
+            </div>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
+              Is This Worth{" "}
+              <span className="text-primary glow-text">Automating</span>?
+            </h1>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Describe your manual task and get an instant analysis on whether it's worth automating.
+            </p>
+          </div>
+
+          {/* Full-size input */}
+          <div className="w-full space-y-4">
+            <div className="relative">
+              <textarea
+                value={task}
+                onChange={(e) => setTask(e.target.value)}
+                rows={5}
+                className="w-full rounded-xl bg-card border border-border px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 resize-none transition-shadow gradient-border"
+              />
+              {!task && (
+                <div
+                  className="absolute top-0 left-0 px-4 py-3 text-muted-foreground pointer-events-none transition-opacity duration-400 ease-in-out"
+                  style={{ opacity: placeholderVisible ? 1 : 0 }}
+                >
+                  e.g. {placeholderExamples[placeholderIndex]}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => handleSubmit()}
+              disabled={loading || !task.trim()}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground font-semibold py-3 px-6 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all glow-primary"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span key={loadingText} className="animate-fade-in">
+                    {loadingText}
+                  </span>
+                </>
+              ) : (
+                "Analyze Task"
+              )}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Compact header bar */}
+          <div className="flex items-center gap-4 w-full max-w-6xl mx-auto mb-6">
+            <div className="flex items-center gap-2 shrink-0">
+              <Zap className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold text-foreground tracking-tight">
+                Automation Analyzer
+              </span>
+            </div>
+
+            {/* Compact input */}
+            <div className="flex-1 flex items-center gap-2 max-w-xl">
+              <button
+                onClick={() => handleSubmit()}
+                disabled={loading || !task.trim()}
+                className="shrink-0 flex items-center justify-center gap-1.5 rounded-lg bg-primary text-primary-foreground font-semibold py-2 px-4 text-sm hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
-                e.g. {placeholderExamples[placeholderIndex]}
+                {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                {loading ? "..." : "Analyze"}
+              </button>
+              <input
+                type="text"
+                value={task}
+                onChange={(e) => setTask(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                placeholder="Describe a task..."
+                className="flex-1 rounded-lg bg-card border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 transition-shadow"
+              />
+            </div>
+          </div>
+
+          {/* Results area */}
+          <div className="w-full max-w-6xl mx-auto space-y-6">
+            {isFullResult ? (
+              <>
+                {/* Two-column: left = verdict, right = matrix */}
+                <div className="grid lg:grid-cols-[1fr_1fr] gap-6">
+                  {/* Left: core verdict sections */}
+                  <ResultCard data={result} taskDescription={task} section="verdict" />
+
+                  {/* Right: effort/impact matrix */}
+                  {taskPoints.length >= 2 ? (
+                    <div className="rounded-xl bg-card border border-border gradient-border p-6 space-y-4 animate-fade-up h-fit">
+                      <h3 className="text-xs font-semibold uppercase tracking-widest text-primary">
+                        Effort vs Impact Matrix
+                      </h3>
+                      <EffortImpactMatrix tasks={taskPoints} />
+                    </div>
+                  ) : (
+                    <div className="rounded-xl bg-card border border-border gradient-border p-6 flex items-center justify-center text-muted-foreground text-sm animate-fade-up">
+                      Analyze 2+ tasks to see the Effort vs Impact matrix
+                    </div>
+                  )}
+                </div>
+
+                {/* Below: remaining detail sections */}
+                <ResultCard data={result} taskDescription={task} section="details" />
+              </>
+            ) : (
+              /* Low-score: simple centered card */
+              <div className="max-w-2xl mx-auto">
+                <ResultCard data={result} taskDescription={task} section="all" />
+                {taskPoints.length >= 2 && (
+                  <div className="mt-6 rounded-xl bg-card border border-border gradient-border p-6 space-y-4 animate-fade-up">
+                    <h3 className="text-xs font-semibold uppercase tracking-widest text-primary">
+                      Effort vs Impact Matrix
+                    </h3>
+                    <EffortImpactMatrix tasks={taskPoints} />
+                  </div>
+                )}
               </div>
             )}
           </div>
-          <button
-            onClick={() => handleSubmit()}
-            disabled={loading || !task.trim()}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground font-semibold py-3 px-6 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all glow-primary"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span key={loadingText} className="animate-fade-in">
-                  {loadingText}
-                </span>
-              </>
-            ) : (
-              "Analyze Task"
-            )}
-          </button>
-        </div>
-
-        {/* Result */}
-        {result && <ResultCard data={result} taskDescription={task} />}
-
-        {/* Effort vs Impact Matrix */}
-        {taskPoints.length >= 2 && (
-          <div className="w-full rounded-xl bg-card border border-border gradient-border p-6 md:p-8 space-y-4 animate-fade-up">
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary">
-              Effort vs Impact Matrix
-            </h3>
-            <EffortImpactMatrix tasks={taskPoints} />
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };
