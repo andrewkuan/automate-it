@@ -28,7 +28,11 @@ const GenerateContentButton = ({
         body: { task: taskDescription, workflow_steps: workflowSteps },
       });
       if (error) throw error;
-      setContent(data?.[responseKey] || "No content generated.");
+      // Try specified key, then fall back to first string value in response
+      const result = data?.[responseKey] 
+        || Object.values(data || {}).find((v) => typeof v === "string") 
+        || "No content generated.";
+      setContent(result as string);
     } catch {
       toast.error("Failed to generate content. Please try again.");
     } finally {
