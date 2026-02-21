@@ -25,6 +25,8 @@ export interface HistoryEntry {
   label: string;
   result: ResultData;
   timestamp: number;
+  generated_codewords?: string;
+  generated_n8n?: string;
 }
 
 export interface TaskPoint {

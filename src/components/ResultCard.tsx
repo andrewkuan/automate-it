@@ -11,6 +11,10 @@ interface ResultCardProps {
   taskDescription: string;
   section: "verdict" | "details" | "all";
   selectedTools: ToolSlug[];
+  generatedCodewords?: string;
+  generatedN8n?: string;
+  onCodewordsGenerated?: (content: string) => void;
+  onN8nGenerated?: (content: string) => void;
 }
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
@@ -21,7 +25,7 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 const Divider = () => <div className="h-px bg-border" />;
 
-const ResultCard = ({ data, taskDescription, section, selectedTools }: ResultCardProps) => {
+const ResultCard = ({ data, taskDescription, section, selectedTools, generatedCodewords, generatedN8n, onCodewordsGenerated, onN8nGenerated }: ResultCardProps) => {
   const isLowScore = data.automate_score < 50;
   const multipleToolsSelected = selectedTools.length > 1;
   const codewordsSelected = selectedTools.includes("codewords");
@@ -132,6 +136,8 @@ const ResultCard = ({ data, taskDescription, section, selectedTools }: ResultCar
             workflowSteps={data.workflow_steps}
             responseKey="codewords_prompt"
             selectedTools={selectedTools}
+            initialContent={generatedCodewords}
+            onContentGenerated={onCodewordsGenerated}
           />
         </div>
       );
@@ -149,6 +155,8 @@ const ResultCard = ({ data, taskDescription, section, selectedTools }: ResultCar
             workflowSteps={data.workflow_steps}
             responseKey="workflow"
             selectedTools={selectedTools}
+            initialContent={generatedN8n}
+            onContentGenerated={onN8nGenerated}
           />
         </div>
       );
