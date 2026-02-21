@@ -30,13 +30,23 @@ interface ResultData {
 interface ResultCardProps {
   data: ResultData;
   taskDescription: string;
+  section: "verdict" | "details" | "all";
 }
 
-const ResultCard = ({ data, taskDescription }: ResultCardProps) => {
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
+    {children}
+  </h3>
+);
+
+const Divider = () => <div className="h-px bg-border" />;
+
+const ResultCard = ({ data, taskDescription, section }: ResultCardProps) => {
   const isLowScore = data.automate_score < 50;
 
-  return (
-    <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-6 md:p-8 space-y-8">
+  /* ── Verdict section: score, AI bar, why, bottleneck, approach ── */
+  const renderVerdict = () => (
+    <div className="space-y-6">
       <div className={isLowScore ? "flex justify-center" : "grid md:grid-cols-2 gap-8 items-center"}>
         <ScoreDial score={data.automate_score} />
         {!isLowScore && data.ai_needed_percent != null && (
@@ -46,125 +56,148 @@ const ResultCard = ({ data, taskDescription }: ResultCardProps) => {
         )}
       </div>
 
-      <div className="h-px bg-border" />
+      <Divider />
 
       <div className="space-y-6">
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
-            Why
-          </h3>
-          <p className="text-secondary-foreground leading-relaxed">
-            {data.why}
-          </p>
+          <SectionLabel>Why</SectionLabel>
+          <p className="text-secondary-foreground leading-relaxed">{data.why}</p>
         </div>
         {data.biggest_bottleneck && (
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
-              Biggest Bottleneck
-            </h3>
-            <p className="text-secondary-foreground leading-relaxed">
-              {data.biggest_bottleneck}
-            </p>
+            <SectionLabel>Biggest Bottleneck</SectionLabel>
+            <p className="text-secondary-foreground leading-relaxed">{data.biggest_bottleneck}</p>
           </div>
         )}
         {data.suggested_approach && (
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
-              Suggested Approach
-            </h3>
-            <p className="text-secondary-foreground leading-relaxed">
-              {data.suggested_approach}
-            </p>
-          </div>
-        )}
-        {data.time_to_build_hours != null && (
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
-              Time to Build
-            </h3>
-            <p className="text-secondary-foreground leading-relaxed">
-              {data.time_to_build_hours} hours
-            </p>
+            <SectionLabel>Suggested Approach</SectionLabel>
+            <p className="text-secondary-foreground leading-relaxed">{data.suggested_approach}</p>
           </div>
         )}
       </div>
+    </div>
+  );
 
-      {!isLowScore && data.recommended_tool && (
-        <>
-          <div className="h-px bg-border" />
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
-              Recommended Tool
-            </h3>
-            <span className="inline-flex items-center rounded-full bg-primary/15 text-primary px-3 py-1 text-sm font-semibold">
-              {data.recommended_tool}
-            </span>
-            {data.recommendation_reason && (
-              <p className="text-secondary-foreground leading-relaxed mt-2">
-                {data.recommendation_reason}
-              </p>
-            )}
-          </div>
-        </>
-      )}
+  /* ── Details section: time, tool, tools list, workflow, codewords ── */
+  const renderDetails = () => {
+    const sections: React.ReactNode[] = [];
 
-      {!isLowScore && data.workflow_steps && data.workflow_steps.length > 0 && (
-        <>
-          <div className="h-px bg-border" />
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
-              Workflow Blueprint
-            </h3>
-            <WorkflowBlueprint steps={data.workflow_steps} />
-          </div>
-        </>
-      )}
+    if (data.time_to_build_hours != null) {
+      sections.push(
+        <div key="time">
+          <SectionLabel>Time to Build</SectionLabel>
+          <p className="text-secondary-foreground leading-relaxed">{data.time_to_build_hours} hours</p>
+        </div>
+      );
+    }
 
-      {data.tools_required && data.tools_required.length > 0 && (
-        <>
-          <div className="h-px bg-border" />
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
-              Tools You'll Need
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {data.tools_required.map((tool) => {
-                const name = typeof tool === "string" ? tool : tool.name;
-                return (
-                  <span
-                    key={name}
-                    className="inline-flex items-center rounded-full bg-secondary text-secondary-foreground px-3 py-1 text-sm font-medium"
-                  >
-                    {name}
-                  </span>
-                );
-              })}
-            </div>
-          </div>
-        </>
-      )}
+    if (!isLowScore && data.recommended_tool) {
+      sections.push(
+        <div key="tool">
+          <SectionLabel>Recommended Tool</SectionLabel>
+          <span className="inline-flex items-center rounded-full bg-primary/15 text-primary px-3 py-1 text-sm font-semibold">
+            {data.recommended_tool}
+          </span>
+          {data.recommendation_reason && (
+            <p className="text-secondary-foreground leading-relaxed mt-2">{data.recommendation_reason}</p>
+          )}
+        </div>
+      );
+    }
 
-      {data.codewords_prompt && (
-        <>
-          <div className="h-px bg-border" />
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
-              Build This on CodeWords
-            </h3>
-            <div className="relative rounded-lg bg-secondary/50 border border-border p-4 font-mono text-sm text-foreground leading-relaxed whitespace-pre-wrap">
-              {data.codewords_prompt}
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(data.codewords_prompt!);
-                  toast.success("Prompt copied to clipboard!");
-                }}
-                className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
-              >
-                <Copy className="w-3 h-3" />
-                Copy Prompt
-              </button>
-            </div>
+    if (data.tools_required && data.tools_required.length > 0) {
+      sections.push(
+        <div key="tools">
+          <SectionLabel>Tools You'll Need</SectionLabel>
+          <div className="flex flex-wrap gap-2">
+            {data.tools_required.map((tool) => {
+              const name = typeof tool === "string" ? tool : tool.name;
+              return (
+                <span
+                  key={name}
+                  className="inline-flex items-center rounded-full bg-secondary text-secondary-foreground px-3 py-1 text-sm font-medium"
+                >
+                  {name}
+                </span>
+              );
+            })}
           </div>
+        </div>
+      );
+    }
+
+    if (!isLowScore && data.workflow_steps && data.workflow_steps.length > 0) {
+      sections.push(
+        <div key="workflow">
+          <SectionLabel>Workflow Blueprint</SectionLabel>
+          <WorkflowBlueprint steps={data.workflow_steps} />
+        </div>
+      );
+    }
+
+    if (data.codewords_prompt) {
+      sections.push(
+        <div key="codewords">
+          <SectionLabel>Build This on CodeWords</SectionLabel>
+          <div className="relative rounded-lg bg-secondary/50 border border-border p-4 font-mono text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+            {data.codewords_prompt}
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(data.codewords_prompt!);
+                toast.success("Prompt copied to clipboard!");
+              }}
+              className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
+            >
+              <Copy className="w-3 h-3" />
+              Copy Prompt
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (sections.length === 0) return null;
+
+    return (
+      <div className="space-y-6">
+        {sections.map((s, i) => (
+          <div key={i}>
+            {i > 0 && <Divider />}
+            <div className={i > 0 ? "pt-6" : ""}>{s}</div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  /* ── Render based on section prop ── */
+  if (section === "verdict") {
+    return (
+      <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-6 md:p-8">
+        {renderVerdict()}
+      </div>
+    );
+  }
+
+  if (section === "details") {
+    const details = renderDetails();
+    if (!details) return null;
+    return (
+      <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-6 md:p-8">
+        {details}
+      </div>
+    );
+  }
+
+  // section === "all" — low-score fallback
+  return (
+    <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-6 md:p-8 space-y-8">
+      {renderVerdict()}
+      {renderDetails() && (
+        <>
+          <Divider />
+          {renderDetails()}
         </>
       )}
     </div>
