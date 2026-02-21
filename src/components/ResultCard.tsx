@@ -25,7 +25,7 @@ const ResultCard = ({ data, taskDescription, section }: ResultCardProps) => {
   /* ── Verdict section: score, AI bar, why, bottleneck, approach ── */
   const renderVerdict = () => (
     <div className="space-y-6">
-      <div className={isLowScore ? "flex justify-center" : "grid md:grid-cols-2 gap-8 items-center"}>
+      <div className={isLowScore ? "flex justify-center" : "flex flex-col items-center gap-6"}>
         <ScoreDial score={data.automate_score} />
         {!isLowScore && data.ai_needed_percent != null && (
           <div className="space-y-4">

@@ -229,7 +229,7 @@ const Index = () => {
           {/* Results area */}
           <div className="w-full max-w-6xl mx-auto space-y-6">
             {isFullResult ? (
-              <div className="grid lg:grid-cols-[1fr_2fr] gap-6">
+              <div className="grid lg:grid-cols-[2fr_3fr] gap-6">
                 <ResultCard data={result} taskDescription={task} section="verdict" />
                 <div className="space-y-6">
                   {taskPoints.length >= 2 ? (
