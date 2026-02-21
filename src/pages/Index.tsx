@@ -32,6 +32,7 @@ const Index = () => {
   const [task, setTask] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ResultData | null>(null);
+  const [currentLabel, setCurrentLabel] = useState("");
   const [history, setHistory] = useState<HistoryEntry[]>(() => getHistory());
 
   // Derive matrix points from history so deletes stay in sync
@@ -105,6 +106,7 @@ const Index = () => {
       const label = summarizeResult.data?.label || summarizeTask(description);
 
       setResult(data);
+      setCurrentLabel(label);
 
       // Save to history
       const entry: HistoryEntry = {
@@ -128,6 +130,7 @@ const Index = () => {
   const handleReview = (entry: HistoryEntry) => {
     setTask(entry.task);
     setResult(entry.result);
+    setCurrentLabel(entry.label);
   };
 
   const hasResult = !!result;
@@ -225,6 +228,13 @@ const Index = () => {
               </button>
             </div>
           </div>
+          {/* Task summary title */}
+          {currentLabel && (
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-xl font-bold text-foreground tracking-tight">{currentLabel}</h2>
+              <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">Current task</span>
+            </div>
+          )}
 
           {/* Results area */}
           <div className="w-full max-w-6xl mx-auto space-y-6">
@@ -237,7 +247,7 @@ const Index = () => {
                       <h3 className="text-xs font-semibold uppercase tracking-widest text-primary">
                         Effort vs Impact Matrix
                       </h3>
-                      <EffortImpactMatrix tasks={taskPoints} />
+                      <EffortImpactMatrix tasks={taskPoints} activeLabel={currentLabel} />
                     </div>
                   ) : (
                     <div className="rounded-xl bg-card border border-border gradient-border p-6 flex items-center justify-center text-muted-foreground text-sm animate-fade-up">
@@ -255,7 +265,7 @@ const Index = () => {
                     <h3 className="text-xs font-semibold uppercase tracking-widest text-primary">
                       Effort vs Impact Matrix
                     </h3>
-                    <EffortImpactMatrix tasks={taskPoints} />
+                      <EffortImpactMatrix tasks={taskPoints} activeLabel={currentLabel} />
                   </div>
                 )}
               </div>
