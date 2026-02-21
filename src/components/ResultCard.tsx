@@ -1,7 +1,15 @@
 import ScoreDial from "./ScoreDial";
 import AIBar from "./AIBar";
+import WorkflowBlueprint from "./WorkflowBlueprint";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
+
+interface WorkflowStep {
+  node_name: string;
+  node_type: "trigger" | "action" | "condition" | "ai";
+  tool: string;
+  description: string;
+}
 
 interface ResultData {
   automate_score: number;
@@ -12,6 +20,11 @@ interface ResultData {
   time_to_build_hours: number;
   tools_required?: (string | { name: string; purpose?: string })[];
   codewords_prompt?: string;
+  recommended_tool?: string;
+  recommendation_reason?: string;
+  workflow_steps?: WorkflowStep[];
+  effort_score?: number;
+  impact_score?: number;
 }
 
 interface ResultCardProps {
@@ -75,6 +88,37 @@ const ResultCard = ({ data, taskDescription }: ResultCardProps) => {
           </div>
         )}
       </div>
+
+      {!isLowScore && data.recommended_tool && (
+        <>
+          <div className="h-px bg-border" />
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
+              Recommended Tool
+            </h3>
+            <span className="inline-flex items-center rounded-full bg-primary/15 text-primary px-3 py-1 text-sm font-semibold">
+              {data.recommended_tool}
+            </span>
+            {data.recommendation_reason && (
+              <p className="text-secondary-foreground leading-relaxed mt-2">
+                {data.recommendation_reason}
+              </p>
+            )}
+          </div>
+        </>
+      )}
+
+      {!isLowScore && data.workflow_steps && data.workflow_steps.length > 0 && (
+        <>
+          <div className="h-px bg-border" />
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
+              Workflow Blueprint
+            </h3>
+            <WorkflowBlueprint steps={data.workflow_steps} />
+          </div>
+        </>
+      )}
 
       {data.tools_required && data.tools_required.length > 0 && (
         <>
