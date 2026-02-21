@@ -285,6 +285,7 @@ const Index = () => {
                 {loading ? "..." : "Analyze"}
               </button>
             </div>
+            <ToolPillToggle selected={selectedTools} onChange={setSelectedTools} />
           </div>
           {/* Task summary title */}
           {currentLabel && (
