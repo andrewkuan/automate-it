@@ -118,15 +118,19 @@ const Index = () => {
     setResult(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke("analyze-task", {
-        body: { task: description },
-      });
+      // Fire both calls in parallel — summarize with fast model while main analysis runs
+      const [analyzeResult, summarizeResult] = await Promise.all([
+        supabase.functions.invoke("analyze-task", { body: { task: description } }),
+        supabase.functions.invoke("summarize-task", { body: { task: description } }),
+      ]);
 
-      if (error) throw error;
+      if (analyzeResult.error) throw analyzeResult.error;
+      const data = analyzeResult.data;
       setResult(data);
 
       if (data.effort_score != null && data.impact_score != null) {
-        const label = summarizeTask(description);
+        const label =
+          summarizeResult.data?.label || summarizeTask(description);
         setTaskPoints((prev) => {
           const updated = [...prev, { label, effort: data.effort_score, impact: data.impact_score }];
           sessionStorage.setItem("effort-impact-tasks", JSON.stringify(updated));

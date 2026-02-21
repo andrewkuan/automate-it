@@ -1,1 +1,4 @@
 project_id = "lagxjkaelhpqsvexxxvq"
+
+[functions.summarize-task]
+verify_jwt = false
