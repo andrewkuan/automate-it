@@ -32,35 +32,58 @@ const ResultCard = ({ data, taskDescription }: ResultCardProps) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const sections = [
-    { label: "Why", content: data.why },
-    { label: "Biggest Bottleneck", content: data.biggest_bottleneck },
-    { label: "Suggested Approach", content: data.suggested_approach },
-    { label: "Time to Build", content: `${data.time_to_build_hours} hours` },
-  ];
-
   return (
     <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-6 md:p-8 space-y-8">
       <div className="grid md:grid-cols-2 gap-8 items-center">
         <ScoreDial score={data.automate_score} />
-        <div className="space-y-4">
-          <AIBar percentage={data.ai_needed_percent} />
-        </div>
+        {data.ai_needed_percent != null && (
+          <div className="space-y-4">
+            <AIBar percentage={data.ai_needed_percent} />
+          </div>
+        )}
       </div>
 
       <div className="h-px bg-border" />
 
       <div className="space-y-6">
-        {sections.map((section) => (
-          <div key={section.label}>
+        <div>
+          <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
+            Why
+          </h3>
+          <p className="text-secondary-foreground leading-relaxed">
+            {data.why}
+          </p>
+        </div>
+        {data.biggest_bottleneck && (
+          <div>
             <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
-              {section.label}
+              Biggest Bottleneck
             </h3>
             <p className="text-secondary-foreground leading-relaxed">
-              {section.content}
+              {data.biggest_bottleneck}
             </p>
           </div>
-        ))}
+        )}
+        {data.suggested_approach && (
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
+              Suggested Approach
+            </h3>
+            <p className="text-secondary-foreground leading-relaxed">
+              {data.suggested_approach}
+            </p>
+          </div>
+        )}
+        {data.time_to_build_hours != null && (
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
+              Time to Build
+            </h3>
+            <p className="text-secondary-foreground leading-relaxed">
+              {data.time_to_build_hours} hours
+            </p>
+          </div>
+        )}
       </div>
 
       {data.tools_required && data.tools_required.length > 0 && (
