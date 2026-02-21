@@ -84,12 +84,11 @@ export const useSpeechRecognition = () => {
       };
 
       recognition.onerror = (event: any) => {
-        console.error("SpeechRecognition error:", event.error);
+        console.error("SpeechRecognition error:", event.error, event.message || "");
         if (event.error === "not-allowed" || event.error === "denied") {
           isListeningRef.current = false;
           setIsListening(false);
         }
-        // "no-speech" is normal silence timeout — onend handles restart
       };
 
       recognitionRef.current = recognition;
@@ -98,6 +97,7 @@ export const useSpeechRecognition = () => {
 
       try {
         recognition.start();
+        console.log("SpeechRecognition started successfully");
         return true;
       } catch (e) {
         console.error("Failed to start recognition:", e);
