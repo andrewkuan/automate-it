@@ -197,14 +197,6 @@ const Index = () => {
 
             {/* Compact input */}
             <div className="flex-1 flex items-center gap-2 max-w-xl">
-              <button
-                onClick={() => handleSubmit()}
-                disabled={loading || !task.trim()}
-                className="shrink-0 flex items-center justify-center gap-1.5 rounded-lg bg-primary text-primary-foreground font-semibold py-2 px-4 text-sm hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-              >
-                {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
-                {loading ? "..." : "Analyze"}
-              </button>
               <input
                 type="text"
                 value={task}
@@ -213,6 +205,14 @@ const Index = () => {
                 placeholder="Describe a task..."
                 className="flex-1 rounded-lg bg-card border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 transition-shadow"
               />
+              <button
+                onClick={() => handleSubmit()}
+                disabled={loading || !task.trim()}
+                className="shrink-0 flex items-center justify-center gap-1.5 rounded-lg bg-primary text-primary-foreground font-semibold py-2 px-4 text-sm hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                {loading ? "..." : "Analyze"}
+              </button>
             </div>
           </div>
 
@@ -220,28 +220,29 @@ const Index = () => {
           <div className="w-full max-w-6xl mx-auto space-y-6">
             {isFullResult ? (
               <>
-                {/* Two-column: left = verdict, right = matrix */}
+                {/* Two-column: left = verdict, right = matrix + details */}
                 <div className="grid lg:grid-cols-[1fr_1fr] gap-6">
                   {/* Left: core verdict sections */}
                   <ResultCard data={result} taskDescription={task} section="verdict" />
 
-                  {/* Right: effort/impact matrix */}
-                  {taskPoints.length >= 2 ? (
-                    <div className="rounded-xl bg-card border border-border gradient-border p-6 space-y-4 animate-fade-up h-fit">
-                      <h3 className="text-xs font-semibold uppercase tracking-widest text-primary">
-                        Effort vs Impact Matrix
-                      </h3>
-                      <EffortImpactMatrix tasks={taskPoints} />
-                    </div>
-                  ) : (
-                    <div className="rounded-xl bg-card border border-border gradient-border p-6 flex items-center justify-center text-muted-foreground text-sm animate-fade-up">
-                      Analyze 2+ tasks to see the Effort vs Impact matrix
-                    </div>
-                  )}
-                </div>
+                  {/* Right: matrix + detail sections */}
+                  <div className="space-y-6">
+                    {taskPoints.length >= 2 ? (
+                      <div className="rounded-xl bg-card border border-border gradient-border p-6 space-y-4 animate-fade-up">
+                        <h3 className="text-xs font-semibold uppercase tracking-widest text-primary">
+                          Effort vs Impact Matrix
+                        </h3>
+                        <EffortImpactMatrix tasks={taskPoints} />
+                      </div>
+                    ) : (
+                      <div className="rounded-xl bg-card border border-border gradient-border p-6 flex items-center justify-center text-muted-foreground text-sm animate-fade-up">
+                        Analyze 2+ tasks to see the Effort vs Impact matrix
+                      </div>
+                    )}
 
-                {/* Below: remaining detail sections */}
-                <ResultCard data={result} taskDescription={task} section="details" />
+                    <ResultCard data={result} taskDescription={task} section="details" />
+                  </div>
+                </div>
               </>
             ) : (
               /* Low-score: simple centered card */
