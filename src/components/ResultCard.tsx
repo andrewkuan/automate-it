@@ -11,6 +11,8 @@ interface ResultData {
   biggest_bottleneck: string;
   suggested_approach: string;
   time_to_build_hours: number;
+  tools_required?: string[];
+  codewords_prompt?: string;
 }
 
 interface ResultCardProps {
@@ -60,6 +62,51 @@ const ResultCard = ({ data, taskDescription }: ResultCardProps) => {
           </div>
         ))}
       </div>
+
+      {data.tools_required && data.tools_required.length > 0 && (
+        <>
+          <div className="h-px bg-border" />
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
+              Tools You'll Need
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {data.tools_required.map((tool) => (
+                <span
+                  key={tool}
+                  className="inline-flex items-center rounded-full bg-secondary text-secondary-foreground px-3 py-1 text-sm font-medium"
+                >
+                  {tool}
+                </span>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {data.codewords_prompt && (
+        <>
+          <div className="h-px bg-border" />
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
+              Build This on CodeWords
+            </h3>
+            <div className="relative rounded-lg bg-secondary/50 border border-border p-4 font-mono text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+              {data.codewords_prompt}
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(data.codewords_prompt!);
+                  toast.success("Prompt copied to clipboard!");
+                }}
+                className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
+              >
+                <Copy className="w-3 h-3" />
+                Copy Prompt
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="flex justify-end">
         <button
