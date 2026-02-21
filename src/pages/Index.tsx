@@ -109,7 +109,8 @@ const Index = () => {
       return;
     }
 
-    accumulatedTextRef.current = task; // start from existing text
+    accumulatedTextRef.current = task;
+    let processedUpTo = 0;
 
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
@@ -117,34 +118,36 @@ const Index = () => {
     recognition.lang = "en-US";
 
     recognition.onresult = (event: any) => {
-      let finalTranscript = "";
       let interimTranscript = "";
-      for (let i = 0; i < event.results.length; i++) {
+      for (let i = processedUpTo; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          finalTranscript += result[0].transcript;
+          accumulatedTextRef.current = (accumulatedTextRef.current + " " + result[0].transcript).trim();
+          processedUpTo = i + 1;
         } else {
           interimTranscript += result[0].transcript;
         }
       }
-      // Update accumulated text with finalized portions
-      if (finalTranscript) {
-        accumulatedTextRef.current = (accumulatedTextRef.current + " " + finalTranscript).trim();
-      }
-      setTask((accumulatedTextRef.current + " " + interimTranscript).trim());
+      const combined = (accumulatedTextRef.current + (interimTranscript ? " " + interimTranscript : "")).trim();
+      setTask(combined);
     };
 
     recognition.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error);
       if (event.error === "not-allowed") {
+        toast.error("Microphone permission denied.");
         isListeningRef.current = false;
         setIsListening(false);
       }
+      // no-speech is normal timeout, onend handles restart
     };
 
-    // Auto-restart on silence timeout
     recognition.onend = () => {
       if (isListeningRef.current) {
-        recognition.start();
+        processedUpTo = 0; // reset since event.results resets on restart
+        setTimeout(() => {
+          try { recognition.start(); } catch {}
+        }, 300);
       } else {
         setIsListening(false);
       }
@@ -152,8 +155,13 @@ const Index = () => {
 
     recognitionRef.current = recognition;
     isListeningRef.current = true;
-    recognition.start();
-    setIsListening(true);
+    try {
+      recognition.start();
+      setIsListening(true);
+    } catch (e) {
+      console.error("Failed to start speech recognition:", e);
+      toast.error("Failed to start speech recognition.");
+    }
   };
 
   useEffect(() => {
