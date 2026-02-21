@@ -48,6 +48,10 @@ const GenerateContentButton = ({
   const [fade, setFade] = useState(true);
 
   useEffect(() => {
+    setContent(initialContent || null);
+  }, [initialContent]);
+
+  useEffect(() => {
     if (!loading) return;
     const interval = setInterval(() => {
       setFade(false);
