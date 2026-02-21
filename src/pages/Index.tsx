@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, Zap, Mic, MicOff } from "lucide-react";
+import { Loader2, Zap, Mic, MicOff, AudioLines } from "lucide-react";
 import { toast } from "sonner";
 import ResultCard from "@/components/ResultCard";
 import EffortImpactMatrix from "@/components/EffortImpactMatrix";
@@ -44,7 +44,7 @@ const Index = () => {
   const [loadingTextVisible, setLoadingTextVisible] = useState(true);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
-  const { isListening, isSupported: speechSupported, startListening, stopListening } = useSpeechRecognition();
+  const { isListening, isProcessing, isSupported: speechSupported, startListening, stopListening } = useSpeechRecognition();
 
   useEffect(() => {
     if (task) return;
@@ -186,10 +186,11 @@ const Index = () => {
               <button
                 type="button"
                 onClick={toggleListening}
-                className={`absolute top-3 right-3 p-1.5 rounded-lg transition-colors ${isListening ? "bg-destructive/20 text-destructive" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
-                title={isListening ? "Stop dictation" : "Start dictation"}
+                disabled={isProcessing}
+                className={`absolute top-3 right-3 p-1.5 rounded-lg transition-colors ${isListening ? "bg-destructive/20 text-destructive" : isProcessing ? "bg-primary/20 text-primary animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
+                title={isProcessing ? "Transcribing..." : isListening ? "Stop dictation" : "Start dictation"}
               >
-                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                {isProcessing ? <AudioLines className="w-4 h-4" /> : isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               </button>
               {!task && (
                 <div
