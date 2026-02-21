@@ -9,6 +9,7 @@ interface GenerateContentButtonProps {
   taskDescription: string;
   workflowSteps?: any[];
   responseKey: string;
+  selectedTools?: string[];
 }
 
 const GenerateContentButton = ({
@@ -17,6 +18,7 @@ const GenerateContentButton = ({
   taskDescription,
   workflowSteps,
   responseKey,
+  selectedTools,
 }: GenerateContentButtonProps) => {
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState<string | null>(null);
@@ -25,7 +27,7 @@ const GenerateContentButton = ({
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke(functionName, {
-        body: { task: taskDescription, workflow_steps: workflowSteps },
+        body: { task: taskDescription, workflow_steps: workflowSteps, selected_tools: selectedTools },
       });
       if (error) throw error;
       // Try specified key, then fall back to first string value in response

@@ -131,6 +131,7 @@ const ResultCard = ({ data, taskDescription, section, selectedTools }: ResultCar
             taskDescription={taskDescription}
             workflowSteps={data.workflow_steps}
             responseKey="codewords_prompt"
+            selectedTools={selectedTools}
           />
         </div>
       );
@@ -147,6 +148,7 @@ const ResultCard = ({ data, taskDescription, section, selectedTools }: ResultCar
             taskDescription={taskDescription}
             workflowSteps={data.workflow_steps}
             responseKey="workflow"
+            selectedTools={selectedTools}
           />
         </div>
       );
