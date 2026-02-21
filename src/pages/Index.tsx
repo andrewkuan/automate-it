@@ -10,6 +10,8 @@ interface ResultData {
   biggest_bottleneck: string;
   suggested_approach: string;
   time_to_build_hours: number;
+  tools_required?: string[];
+  codewords_prompt?: string;
 }
 
 // API call proxied through edge function
