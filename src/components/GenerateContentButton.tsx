@@ -108,7 +108,7 @@ const GenerateContentButton = ({
       )}
       {loading ? (
         <span
-          className="transition-opacity duration-300 ease-in-out"
+          className="transition-opacity duration-300 ease-in-out text-primary font-semibold"
           style={{ opacity: fade ? 1 : 0 }}
         >
           {loadingMessages[msgIndex]}
