@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { task, workflow_steps } = await req.json();
+    const { task, workflow_steps, selected_tools } = await req.json();
     const apiKey = Deno.env.get("CODEWORDS_API_KEY");
 
     // API expects workflow_steps as string[]
@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
         "x-api-key": apiKey!,
       },
-      body: JSON.stringify({ task_description: task, workflow_steps: steps }),
+      body: JSON.stringify({ task_description: task, workflow_steps: steps, selected_tools: selected_tools || [] }),
     });
 
     const data = await res.json();
