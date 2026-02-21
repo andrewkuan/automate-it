@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { Loader2, Zap } from "lucide-react";
 import { toast } from "sonner";
 import ResultCard from "@/components/ResultCard";
+import EffortImpactMatrix from "@/components/EffortImpactMatrix";
 import { supabase } from "@/integrations/supabase/client";
+
 interface ResultData {
   automate_score: number;
   ai_needed_percent: number;
@@ -12,6 +14,17 @@ interface ResultData {
   time_to_build_hours: number;
   tools_required?: (string | { name: string; purpose?: string })[];
   codewords_prompt?: string;
+  recommended_tool?: string;
+  recommendation_reason?: string;
+  workflow_steps?: { node_name: string; node_type: "trigger" | "action" | "condition" | "ai"; tool: string; description: string }[];
+  effort_score?: number;
+  impact_score?: number;
+}
+
+interface TaskPoint {
+  label: string;
+  effort: number;
+  impact: number;
 }
 
 // API call proxied through edge function
@@ -28,6 +41,14 @@ const Index = () => {
   const [task, setTask] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ResultData | null>(null);
+  const [taskPoints, setTaskPoints] = useState<TaskPoint[]>(() => {
+    try {
+      const stored = sessionStorage.getItem("effort-impact-tasks");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
   const [loadingText, setLoadingText] = useState("Analyzing...");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
@@ -91,6 +112,16 @@ const Index = () => {
 
       if (error) throw error;
       setResult(data);
+
+      // Store effort/impact for matrix
+      if (data.effort_score != null && data.impact_score != null) {
+        const label = description.split(/\s+/).slice(0, 4).join(" ");
+        setTaskPoints((prev) => {
+          const updated = [...prev, { label, effort: data.effort_score, impact: data.impact_score }];
+          sessionStorage.setItem("effort-impact-tasks", JSON.stringify(updated));
+          return updated;
+        });
+      }
     } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
@@ -154,6 +185,16 @@ const Index = () => {
 
         {/* Result */}
         {result && <ResultCard data={result} taskDescription={task} />}
+
+        {/* Effort vs Impact Matrix */}
+        {taskPoints.length >= 2 && (
+          <div className="w-full rounded-xl bg-card border border-border gradient-border p-6 md:p-8 space-y-4 animate-fade-up">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-primary">
+              Effort vs Impact Matrix
+            </h3>
+            <EffortImpactMatrix tasks={taskPoints} />
+          </div>
+        )}
       </div>
     </div>
   );
