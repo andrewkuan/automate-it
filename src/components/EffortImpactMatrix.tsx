@@ -19,6 +19,7 @@ interface TaskPoint {
 
 interface EffortImpactMatrixProps {
   tasks: TaskPoint[];
+  activeLabel?: string;
 }
 
 const QUADRANT_LABELS = [
@@ -40,13 +41,21 @@ const DOT_COLORS = [
 ];
 
 const CustomDot = (props: any) => {
-  const { cx, cy, fill } = props;
+  const { cx, cy, fill, isActive } = props;
   return (
-    <circle cx={cx} cy={cy} r={7} fill={fill} stroke="hsl(var(--background))" strokeWidth={2} opacity={0.9} />
+    <g>
+      {isActive && (
+        <circle cx={cx} cy={cy} r={14} fill="none" stroke={fill} strokeWidth={2} opacity={0.4}>
+          <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.5;0.15;0.5" dur="2s" repeatCount="indefinite" />
+        </circle>
+      )}
+      <circle cx={cx} cy={cy} r={isActive ? 9 : 7} fill={fill} stroke="hsl(var(--background))" strokeWidth={2} opacity={0.9} />
+    </g>
   );
 };
 
-const EffortImpactMatrix = ({ tasks }: EffortImpactMatrixProps) => {
+const EffortImpactMatrix = ({ tasks, activeLabel }: EffortImpactMatrixProps) => {
   return (
     <div className="w-full space-y-4">
       <div className="h-[280px]">
@@ -120,8 +129,11 @@ const EffortImpactMatrix = ({ tasks }: EffortImpactMatrixProps) => {
                 );
               }}
             />
-            <Scatter data={tasks} shape={<CustomDot />}>
-              {tasks.map((_, i) => (
+            <Scatter data={tasks} shape={(props: any) => {
+              const idx = tasks.indexOf(props.payload);
+              return <CustomDot {...props} isActive={props.payload.label === activeLabel} fill={DOT_COLORS[idx % DOT_COLORS.length]} />;
+            }}>
+              {tasks.map((t, i) => (
                 <Cell key={i} fill={DOT_COLORS[i % DOT_COLORS.length]} />
               ))}
             </Scatter>
@@ -132,12 +144,12 @@ const EffortImpactMatrix = ({ tasks }: EffortImpactMatrixProps) => {
       {/* Legend */}
       <div className="flex flex-wrap gap-x-4 gap-y-1.5 px-1">
         {tasks.map((t, i) => (
-          <div key={i} className="flex items-center gap-1.5">
+          <div key={i} className={`flex items-center gap-1.5 ${t.label === activeLabel ? "ring-1 ring-primary/40 rounded-full px-2 py-0.5 bg-primary/10" : ""}`}>
             <span
               className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
               style={{ backgroundColor: DOT_COLORS[i % DOT_COLORS.length] }}
             />
-            <span className="text-xs text-muted-foreground">{t.label}</span>
+            <span className={`text-xs ${t.label === activeLabel ? "text-foreground font-medium" : "text-muted-foreground"}`}>{t.label}</span>
           </div>
         ))}
       </div>
