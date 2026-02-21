@@ -46,6 +46,7 @@ const Index = () => {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
   const isListeningRef = useRef(false);
+  const accumulatedTextRef = useRef("");
 
   useEffect(() => {
     if (task) return;
@@ -108,17 +109,29 @@ const Index = () => {
       return;
     }
 
+    accumulatedTextRef.current = task; // start from existing text
+
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = "en-US";
 
     recognition.onresult = (event: any) => {
-      let transcript = "";
+      let finalTranscript = "";
+      let interimTranscript = "";
       for (let i = 0; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript;
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalTranscript += result[0].transcript;
+        } else {
+          interimTranscript += result[0].transcript;
+        }
       }
-      setTask(transcript);
+      // Update accumulated text with finalized portions
+      if (finalTranscript) {
+        accumulatedTextRef.current = (accumulatedTextRef.current + " " + finalTranscript).trim();
+      }
+      setTask((accumulatedTextRef.current + " " + interimTranscript).trim());
     };
 
     recognition.onerror = (event: any) => {
