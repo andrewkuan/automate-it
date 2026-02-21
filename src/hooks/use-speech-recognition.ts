@@ -4,12 +4,14 @@ export const useSpeechRecognition = () => {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
   const accumulatedRef = useRef("");
-  const supported = typeof window !== "undefined" &&
-    !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+  const supported = useRef(
+    typeof window !== "undefined" &&
+      !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition)
+  );
 
   const startListening = useCallback(
     (currentText: string, onUpdate: (text: string) => void) => {
-      if (!supported) return false;
+      if (!supported.current) return false;
 
       // Stop any existing instance
       if (recognitionRef.current) {
@@ -65,7 +67,7 @@ export const useSpeechRecognition = () => {
         return false;
       }
     },
-    [supported]
+    []
   );
 
   const stopListening = useCallback(() => {
@@ -81,5 +83,5 @@ export const useSpeechRecognition = () => {
     };
   }, []);
 
-  return { isListening, isSupported: supported, startListening, stopListening };
+  return { isListening, isSupported: supported.current, startListening, stopListening };
 };
