@@ -40,6 +40,7 @@ const Index = () => {
     .filter((e) => e.result.effort_score != null && e.result.impact_score != null)
     .map((e) => ({ label: e.label, effort: e.result.effort_score!, impact: e.result.impact_score! }));
   const [loadingText, setLoadingText] = useState("Analyzing...");
+  const [loadingTextVisible, setLoadingTextVisible] = useState(true);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
 
@@ -58,6 +59,7 @@ const Index = () => {
   useEffect(() => {
     if (!loading) {
       setLoadingText("Analyzing...");
+      setLoadingTextVisible(true);
       return;
     }
     const phrases = [
@@ -69,8 +71,12 @@ const Index = () => {
     ];
     let i = 0;
     const interval = setInterval(() => {
-      i = (i + 1) % phrases.length;
-      setLoadingText(phrases[i]);
+      setLoadingTextVisible(false);
+      setTimeout(() => {
+        i = (i + 1) % phrases.length;
+        setLoadingText(phrases[i]);
+        setLoadingTextVisible(true);
+      }, 400);
     }, 2000);
     return () => clearInterval(interval);
   }, [loading]);
@@ -179,7 +185,7 @@ const Index = () => {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span key={loadingText} className="animate-fade-in">
+                  <span className="transition-opacity duration-400 ease-in-out" style={{ opacity: loadingTextVisible ? 1 : 0 }}>
                     {loadingText}
                   </span>
                 </>
