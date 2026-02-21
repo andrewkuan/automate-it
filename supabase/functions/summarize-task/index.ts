@@ -13,27 +13,28 @@ serve(async (req) => {
 
   try {
     const { task } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a labelling assistant. Given a task description, return ONLY a 2-4 word summary label. No punctuation, no quotes, no explanation. Examples: 'CRM CSV export', 'Invoice data entry', 'Price monitoring'.",
-          },
-          { role: "user", content: task },
-        ],
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: `You are a labelling assistant. Given a task description, return ONLY a 2-4 word summary label. No punctuation, no quotes, no explanation. Examples: 'CRM CSV export', 'Invoice data entry', 'Price monitoring'.\n\nTask: ${task}`,
+                },
+              ],
+            },
+          ],
+        }),
+      }
+    );
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -43,12 +44,13 @@ serve(async (req) => {
         });
       }
       const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      throw new Error("AI gateway error");
+      console.error("Gemini API error:", response.status, t);
+      throw new Error("Gemini API error");
     }
 
     const data = await response.json();
-    const label = data.choices?.[0]?.message?.content?.trim() || "";
+    const label =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
 
     return new Response(JSON.stringify({ label }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
