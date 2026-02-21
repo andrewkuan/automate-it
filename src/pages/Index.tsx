@@ -50,8 +50,8 @@ const Index = () => {
       setTimeout(() => {
         setPlaceholderIndex((prev) => (prev + 1) % placeholderExamples.length);
         setPlaceholderVisible(true);
-      }, 400);
-    }, 4000);
+      }, 800);
+    }, 5000);
     return () => clearInterval(interval);
   }, [task]);
 
@@ -164,7 +164,7 @@ const Index = () => {
               />
               {!task && (
                 <div
-                  className="absolute top-0 left-0 px-4 py-3 text-muted-foreground pointer-events-none transition-opacity duration-400 ease-in-out"
+                  className="absolute top-0 left-0 px-4 py-3 text-muted-foreground pointer-events-none transition-opacity duration-700 ease-in-out"
                   style={{ opacity: placeholderVisible ? 1 : 0 }}
                 >
                   e.g. {placeholderExamples[placeholderIndex]}
