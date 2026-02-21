@@ -58,7 +58,7 @@ const CustomDot = (props: any) => {
 const EffortImpactMatrix = ({ tasks, activeLabel }: EffortImpactMatrixProps) => {
   return (
     <div className="w-full space-y-4">
-      <div className="h-[280px]">
+      <div className="h-[220px] md:h-[280px]">
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 20, right: 20, bottom: 30, left: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />

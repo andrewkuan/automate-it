@@ -38,7 +38,7 @@ const WorkflowBlueprint = ({ steps }: WorkflowBlueprintProps) => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div
-                    className={`flex flex-col items-center gap-2 rounded-xl border ${config.border} ${config.bg} px-4 py-3 min-w-[120px] max-w-[160px] cursor-default transition-colors hover:brightness-125`}
+                    className={`flex flex-col items-center gap-2 rounded-xl border ${config.border} ${config.bg} px-3 py-2 md:px-4 md:py-3 min-w-[100px] md:min-w-[120px] max-w-[160px] cursor-default transition-colors hover:brightness-125`}
                   >
                     <Icon className={`w-5 h-5 ${config.color}`} />
                     <span className="text-xs font-semibold text-foreground text-center leading-tight">
