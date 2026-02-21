@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Loader2, Zap } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Loader2, Zap, Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
 import ResultCard from "@/components/ResultCard";
 import EffortImpactMatrix from "@/components/EffortImpactMatrix";
@@ -43,6 +43,8 @@ const Index = () => {
   const [loadingTextVisible, setLoadingTextVisible] = useState(true);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     if (task) return;
@@ -90,6 +92,45 @@ const Index = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const toggleListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Speech recognition is not supported in this browser.");
+      return;
+    }
+
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event: any) => {
+      let transcript = "";
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setTask(transcript);
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsListening(true);
+  };
 
   const handleSubmit = async (taskText?: string) => {
     const description = taskText || task;
@@ -166,8 +207,16 @@ const Index = () => {
                 value={task}
                 onChange={(e) => setTask(e.target.value)}
                 rows={5}
-                className="w-full rounded-xl bg-card border border-border px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 resize-none transition-shadow gradient-border"
+                className="w-full rounded-xl bg-card border border-border px-4 py-3 pr-12 text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 resize-none transition-shadow gradient-border"
               />
+              <button
+                type="button"
+                onClick={toggleListening}
+                className={`absolute top-3 right-3 p-1.5 rounded-lg transition-colors ${isListening ? "bg-destructive/20 text-destructive" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
+                title={isListening ? "Stop dictation" : "Start dictation"}
+              >
+                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              </button>
               {!task && (
                 <div
                   className="absolute top-0 left-0 px-4 py-3 text-muted-foreground pointer-events-none transition-opacity duration-700 ease-in-out"
@@ -236,7 +285,7 @@ const Index = () => {
           </div>
           {/* Task summary title */}
           {currentLabel && (
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex flex-col items-center gap-1 mb-2">
               <h2 className="text-xl font-bold text-foreground tracking-tight">{currentLabel}</h2>
               <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">Current task</span>
             </div>
