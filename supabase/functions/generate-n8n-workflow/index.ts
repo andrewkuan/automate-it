@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": apiKey!,
+        "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({ task_description: task, workflow_steps: steps, selected_tools: selected_tools || [] }),
     });
