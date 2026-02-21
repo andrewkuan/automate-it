@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   Label,
   ReferenceLine,
+  Cell,
 } from "recharts";
 
 interface TaskPoint {
@@ -39,10 +40,9 @@ const DOT_COLORS = [
 ];
 
 const CustomDot = (props: any) => {
-  const { cx, cy, index } = props;
-  const color = DOT_COLORS[index % DOT_COLORS.length];
+  const { cx, cy, fill } = props;
   return (
-    <circle cx={cx} cy={cy} r={7} fill={color} stroke="hsl(var(--background))" strokeWidth={2} opacity={0.9} />
+    <circle cx={cx} cy={cy} r={7} fill={fill} stroke="hsl(var(--background))" strokeWidth={2} opacity={0.9} />
   );
 };
 
@@ -120,7 +120,11 @@ const EffortImpactMatrix = ({ tasks }: EffortImpactMatrixProps) => {
                 );
               }}
             />
-            <Scatter data={tasks} shape={<CustomDot />} />
+            <Scatter data={tasks} shape={<CustomDot />}>
+              {tasks.map((_, i) => (
+                <Cell key={i} fill={DOT_COLORS[i % DOT_COLORS.length]} />
+              ))}
+            </Scatter>
           </ScatterChart>
         </ResponsiveContainer>
       </div>
