@@ -242,12 +242,12 @@ const Index = () => {
         <>
           {/* Compact header bar */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4 w-full max-w-6xl mx-auto mb-6">
-            <div className="flex items-center gap-2 shrink-0">
+            <button onClick={() => { setResult(null); setTask(""); setCurrentLabel(""); setFullTaskDescription(""); }} className="flex items-center gap-2 shrink-0 hover:opacity-80 transition-opacity">
               <Zap className="w-4 h-4 text-primary" />
               <span className="hidden md:inline text-sm font-semibold text-foreground tracking-tight">
                 Automation Analyzer
               </span>
-            </div>
+            </button>
 
             <div className="flex-1 flex items-center gap-2 max-w-xl">
               <input
