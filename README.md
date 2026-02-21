@@ -1,73 +1,92 @@
-# Welcome to your Lovable project
+# ⚡ Automation Analyzer
 
-## Project info
+Instantly evaluate whether a manual task is worth automating. Describe your repetitive workflow and get an AI-powered analysis with an automation score, effort/impact assessment, suggested tools, and a step-by-step workflow blueprint.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- **AI-Powered Analysis** — Submit a task description and receive a detailed automation feasibility report including an automation score, AI dependency percentage, biggest bottleneck, suggested approach, estimated build time, and recommended tools.
+- **Voice Input** — Dictate task descriptions using the built-in microphone button powered by Deepgram speech-to-text transcription.
+- **Effort vs Impact Matrix** — After analyzing 2+ tasks, visualize them on a scatter plot to prioritize which automations deliver the most value for the least effort.
+- **Workflow Blueprint** — View a generated step-by-step workflow showing triggers, actions, conditions, and AI nodes required to automate the task.
+- **Search History** — All analyzed tasks are saved locally so you can revisit and compare previous results.
+- **Shareable Links** — Share an analysis via URL query parameter (`?task=...`) so others can instantly run the same evaluation.
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui
+- **Backend:** Lovable Cloud (Edge Functions)
+- **AI:** Codewords API (task analysis), Lovable AI Gateway (task summarization)
+- **Speech-to-Text:** Deepgram Nova-2
+- **Charts:** Recharts
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Project Structure
 
-Changes made via Lovable will be committed automatically to this repo.
+```
+src/
+├── components/
+│   ├── AIBar.tsx              # AI interaction bar
+│   ├── EffortImpactMatrix.tsx # Scatter plot for effort vs impact
+│   ├── ResultCard.tsx         # Displays analysis results
+│   ├── ScoreDial.tsx          # Circular score gauge
+│   ├── SearchHistory.tsx      # Past analyses list
+│   ├── WorkflowBlueprint.tsx  # Visual workflow steps
+│   └── ui/                    # shadcn/ui primitives
+├── hooks/
+│   ├── use-speech-recognition.ts  # Mic recording + Deepgram transcription
+│   └── use-mobile.tsx             # Responsive breakpoint hook
+├── lib/
+│   ├── history.ts             # LocalStorage history helpers
+│   └── utils.ts               # Tailwind merge utility
+├── pages/
+│   └── Index.tsx              # Main application page
+├── types/
+│   └── analysis.ts            # TypeScript interfaces
+└── integrations/
+    └── supabase/              # Auto-generated Lovable Cloud client
 
-**Use your preferred IDE**
+supabase/functions/
+├── analyze-task/              # Calls Codewords API for task analysis
+├── summarize-task/            # Generates short labels via Lovable AI
+└── transcribe-audio/          # Sends audio to Deepgram for transcription
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Using Lovable
 
-Follow these steps:
+Visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+
+### Local Development
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
 npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Requires Node.js (install via [nvm](https://github.com/nvm-sh/nvm#installing-and-updating)).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Environment & Secrets
 
-**Use GitHub Codespaces**
+The app requires the following secrets configured in Lovable Cloud:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+| Secret | Purpose |
+|---|---|
+| `CODEWORDS_API_KEY` | Authenticates requests to the Codewords task analysis API |
+| `DEEPGRAM_API_KEY` | Authenticates requests to the Deepgram speech-to-text API |
+| `LOVABLE_API_KEY` | Authenticates requests to the Lovable AI Gateway |
 
-## What technologies are used for this project?
+> **Note:** There is no `.env` file to manage. Secrets are stored securely in Lovable Cloud and accessed by edge functions at runtime.
 
-This project is built with:
+## Deployment
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click **Share → Publish**.
 
-## How can I deploy this project?
+## Custom Domain
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+Navigate to **Project → Settings → Domains → Connect Domain**. [Learn more](https://docs.lovable.dev/features/custom-domain#custom-domain).
 
-## Can I connect a custom domain to my Lovable project?
+## License
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Private project built with [Lovable](https://lovable.dev).
