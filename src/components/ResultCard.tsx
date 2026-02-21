@@ -10,7 +10,7 @@ interface ResultData {
   why: string;
   biggest_bottleneck: string;
   suggested_approach: string;
-  time_to_build: string;
+  time_to_build_hours: number;
 }
 
 interface ResultCardProps {
@@ -34,7 +34,7 @@ const ResultCard = ({ data, taskDescription }: ResultCardProps) => {
     { label: "Why", content: data.why },
     { label: "Biggest Bottleneck", content: data.biggest_bottleneck },
     { label: "Suggested Approach", content: data.suggested_approach },
-    { label: "Time to Build", content: data.time_to_build },
+    { label: "Time to Build", content: `${data.time_to_build_hours} hours` },
   ];
 
   return (
