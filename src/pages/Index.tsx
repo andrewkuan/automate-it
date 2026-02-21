@@ -266,14 +266,7 @@ const Index = () => {
             ) : (
               <div className="max-w-2xl mx-auto">
                 <ResultCard data={result} taskDescription={task} section="all" />
-                {taskPoints.length >= 2 && (
-                  <div className="mt-6 rounded-xl bg-card border border-border gradient-border p-6 space-y-4 animate-fade-up">
-                    <h3 className="text-xs font-semibold uppercase tracking-widest text-primary">
-                      Effort vs Impact Matrix
-                    </h3>
-                      <EffortImpactMatrix tasks={taskPoints} activeLabel={currentLabel} />
-                  </div>
-                )}
+              
               </div>
             )}
 
