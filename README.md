@@ -57,6 +57,10 @@ supabase/functions/
 └── transcribe-audio/            # Sends audio to Deepgram for transcription
 ```
 
+## Live Demo
+
+**[automate-thought-bubble.lovable.app](https://automate-thought-bubble.lovable.app)**
+
 ## Getting Started
 
 ### Using Lovable
