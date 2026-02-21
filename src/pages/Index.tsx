@@ -9,6 +9,7 @@ import { ResultData, TaskPoint, HistoryEntry } from "@/types/analysis";
 import { getHistory, addToHistory } from "@/lib/history";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import ToolPillToggle, { ToolSlug } from "@/components/ToolPillToggle";
+import ToolDropdown from "@/components/ToolDropdown";
 
 const placeholderExamples = [
   "Every Monday I manually export a CSV from our CRM, clean the data in Excel, and upload it to Google Sheets for the sales team...",
@@ -285,7 +286,7 @@ const Index = () => {
                 {loading ? "..." : "Analyze"}
               </button>
             </div>
-            <ToolPillToggle selected={selectedTools} onChange={setSelectedTools} />
+            <ToolDropdown selected={selectedTools} onChange={setSelectedTools} />
           </div>
           {/* Task summary title */}
           {currentLabel && (
