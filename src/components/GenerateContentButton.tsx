@@ -28,6 +28,8 @@ interface GenerateContentButtonProps {
   workflowSteps?: any[];
   responseKey: string;
   selectedTools?: string[];
+  initialContent?: string;
+  onContentGenerated?: (content: string) => void;
 }
 
 const GenerateContentButton = ({
@@ -37,9 +39,11 @@ const GenerateContentButton = ({
   workflowSteps,
   responseKey,
   selectedTools,
+  initialContent,
+  onContentGenerated,
 }: GenerateContentButtonProps) => {
   const [loading, setLoading] = useState(false);
-  const [content, setContent] = useState<string | null>(null);
+  const [content, setContent] = useState<string | null>(initialContent || null);
   const [msgIndex, setMsgIndex] = useState(0);
   const [fade, setFade] = useState(true);
 
@@ -68,7 +72,7 @@ const GenerateContentButton = ({
         || Object.values(data || {}).find((v) => typeof v === "string") 
         || "No content generated.";
       setContent(result as string);
-    } catch {
+      onContentGenerated?.(result as string);
       toast.error("Failed to generate content. Please try again.");
     } finally {
       setLoading(false);

@@ -36,6 +36,7 @@ const Index = () => {
   const [result, setResult] = useState<ResultData | null>(null);
   const [currentLabel, setCurrentLabel] = useState("");
   const [fullTaskDescription, setFullTaskDescription] = useState("");
+  const [currentEntryId, setCurrentEntryId] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>(() => getHistory());
 
   // Derive matrix points from history so deletes stay in sync
@@ -49,6 +50,13 @@ const Index = () => {
   const [selectedTools, setSelectedTools] = useState<ToolSlug[]>(["codewords", "n8n", "make", "zapier"]);
   const { isListening, isProcessing, isSupported: speechSupported, startListening, stopListening } = useSpeechRecognition();
 
+  const updateHistoryEntry = (entryId: string, updates: Partial<HistoryEntry>) => {
+    setHistory((prev) => {
+      const updated = prev.map((e) => (e.id === entryId ? { ...e, ...updates } : e));
+      localStorage.setItem("analysis-history", JSON.stringify(updated));
+      return updated;
+    });
+  };
   useEffect(() => {
     if (task) return;
     const interval = setInterval(() => {
@@ -138,8 +146,9 @@ const Index = () => {
       setTask("");
 
       // Save to history
+      const entryId = crypto.randomUUID();
       const entry: HistoryEntry = {
-        id: crypto.randomUUID(),
+        id: entryId,
         task: description,
         label,
         result: data,
@@ -147,8 +156,7 @@ const Index = () => {
       };
       const updatedHistory = addToHistory(entry);
       setHistory(updatedHistory);
-
-      // Matrix points are now derived from history, no separate storage needed
+      setCurrentEntryId(entryId);
     } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
@@ -161,10 +169,12 @@ const Index = () => {
     setResult(entry.result);
     setCurrentLabel(entry.label);
     setFullTaskDescription(entry.task);
+    setCurrentEntryId(entry.id);
   };
 
   const hasResult = !!result;
   const isFullResult = hasResult && result.automate_score >= 50;
+  const currentEntry = history.find((e) => e.id === currentEntryId);
 
   return (
     <div className="min-h-screen bg-background flex flex-col px-4 py-6 md:py-10 overflow-x-hidden">
@@ -242,7 +252,7 @@ const Index = () => {
         <>
           {/* Compact header bar */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4 w-full max-w-6xl mx-auto mb-6">
-            <button onClick={() => { setResult(null); setTask(""); setCurrentLabel(""); setFullTaskDescription(""); }} className="flex items-center gap-2 shrink-0 hover:opacity-80 transition-opacity">
+            <button onClick={() => { setResult(null); setTask(""); setCurrentLabel(""); setFullTaskDescription(""); setCurrentEntryId(null); }} className="flex items-center gap-2 shrink-0 hover:opacity-80 transition-opacity">
               <Zap className="w-4 h-4 text-primary" />
               <span className="hidden md:inline text-sm font-semibold text-foreground tracking-tight">
                 Automation Analyzer
@@ -291,7 +301,7 @@ const Index = () => {
           <div className="w-full max-w-6xl mx-auto space-y-6 overflow-x-hidden">
             {isFullResult ? (
               <div className="grid md:grid-cols-[320px_1fr] lg:grid-cols-[380px_1fr] gap-6 min-w-0">
-                <ResultCard data={result} taskDescription={fullTaskDescription} section="verdict" selectedTools={selectedTools} />
+                <ResultCard data={result} taskDescription={fullTaskDescription} section="verdict" selectedTools={selectedTools} generatedCodewords={currentEntry?.generated_codewords} generatedN8n={currentEntry?.generated_n8n} onCodewordsGenerated={(c) => currentEntryId && updateHistoryEntry(currentEntryId, { generated_codewords: c })} onN8nGenerated={(c) => currentEntryId && updateHistoryEntry(currentEntryId, { generated_n8n: c })} />
                 <div className="space-y-6 min-w-0">
                   {taskPoints.length >= 2 ? (
                     <div className="rounded-xl bg-card border border-border gradient-border p-4 md:p-6 space-y-4 animate-fade-up min-w-0">
@@ -305,12 +315,12 @@ const Index = () => {
                       Analyze 2+ tasks to see the Effort vs Impact matrix
                     </div>
                   )}
-                  <ResultCard data={result} taskDescription={fullTaskDescription} section="details" selectedTools={selectedTools} />
+                  <ResultCard data={result} taskDescription={fullTaskDescription} section="details" selectedTools={selectedTools} generatedCodewords={currentEntry?.generated_codewords} generatedN8n={currentEntry?.generated_n8n} onCodewordsGenerated={(c) => currentEntryId && updateHistoryEntry(currentEntryId, { generated_codewords: c })} onN8nGenerated={(c) => currentEntryId && updateHistoryEntry(currentEntryId, { generated_n8n: c })} />
                 </div>
               </div>
             ) : (
               <div className="max-w-2xl mx-auto">
-                <ResultCard data={result} taskDescription={fullTaskDescription} section="all" selectedTools={selectedTools} />
+                <ResultCard data={result} taskDescription={fullTaskDescription} section="all" selectedTools={selectedTools} generatedCodewords={currentEntry?.generated_codewords} generatedN8n={currentEntry?.generated_n8n} onCodewordsGenerated={(c) => currentEntryId && updateHistoryEntry(currentEntryId, { generated_codewords: c })} onN8nGenerated={(c) => currentEntryId && updateHistoryEntry(currentEntryId, { generated_n8n: c })} />
               
               </div>
             )}
