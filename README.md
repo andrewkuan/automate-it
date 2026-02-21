@@ -15,7 +15,7 @@ Instantly evaluate whether a manual task is worth automating. Describe your repe
 
 - **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui
 - **Backend:** Lovable Cloud (Edge Functions)
-- **AI:** Codewords API (task analysis), Lovable AI Gateway (task summarization)
+- **AI:** Codewords API (task analysis), Gemini 2.0 Flash (task summarization)
 - **Speech-to-Text:** Deepgram Nova-2
 - **Charts:** Recharts
 
@@ -46,7 +46,7 @@ src/
 
 supabase/functions/
 ├── analyze-task/              # Calls Codewords API for task analysis
-├── summarize-task/            # Generates short labels via Lovable AI
+├── summarize-task/            # Generates short labels via Gemini API
 └── transcribe-audio/          # Sends audio to Deepgram for transcription
 ```
 
@@ -75,7 +75,7 @@ The app requires the following secrets configured in Lovable Cloud:
 |---|---|
 | `CODEWORDS_API_KEY` | Authenticates requests to the Codewords task analysis API |
 | `DEEPGRAM_API_KEY` | Authenticates requests to the Deepgram speech-to-text API |
-| `LOVABLE_API_KEY` | Authenticates requests to the Lovable AI Gateway |
+| `GEMINI_API_KEY` | Authenticates requests to the Google Gemini API for task summarization |
 
 > **Note:** There is no `.env` file to manage. Secrets are stored securely in Lovable Cloud and accessed by edge functions at runtime.
 
