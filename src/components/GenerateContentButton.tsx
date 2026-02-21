@@ -42,18 +42,20 @@ const GenerateContentButton = ({
 
   if (content) {
     return (
-      <div className="relative rounded-lg bg-secondary/50 border border-border p-4 font-mono text-sm text-foreground leading-relaxed whitespace-pre-wrap overflow-x-auto">
-        {content}
-        <button
-          onClick={() => {
-            navigator.clipboard.writeText(content);
-            toast.success("Copied to clipboard!");
-          }}
-          className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
-        >
-          <Copy className="w-3 h-3" />
-          Copy
-        </button>
+      <div className="relative rounded-lg bg-secondary/50 border border-border font-mono text-sm text-foreground leading-relaxed max-h-64 overflow-y-auto">
+        <div className="sticky top-0 right-0 flex justify-end p-2 bg-gradient-to-b from-secondary/80 to-transparent z-10">
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(content);
+              toast.success("Copied to clipboard!");
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
+          >
+            <Copy className="w-3 h-3" />
+            Copy
+          </button>
+        </div>
+        <div className="px-4 pb-4 whitespace-pre-wrap">{content}</div>
       </div>
     );
   }
