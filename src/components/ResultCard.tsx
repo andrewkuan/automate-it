@@ -130,7 +130,7 @@ const ResultCard = ({ data, taskDescription, section, selectedTools }: ResultCar
             functionName="generate-codewords-prompt"
             taskDescription={taskDescription}
             workflowSteps={data.workflow_steps}
-            responseKey="prompt"
+            responseKey="codewords_prompt"
           />
         </div>
       );

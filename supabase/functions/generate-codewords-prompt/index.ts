@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const API_URL =
-  "https://api.codewords.agemo.ai/v1/run/generate_codewords_prompt_fdbdf72c";
+  "https://runtime.codewords.ai/run/generate_codewords_prompt_fdbdf72c";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
