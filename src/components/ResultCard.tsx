@@ -121,7 +121,7 @@ const ResultCard = ({ data, taskDescription, section, selectedTools }: ResultCar
     }
 
     // CodeWords generate button (only if codewords selected)
-    if (codewordsSelected) {
+    if (!isLowScore && codewordsSelected) {
       sections.push(
         <div key="codewords">
           <SectionLabel>Build This on CodeWords</SectionLabel>
@@ -138,7 +138,7 @@ const ResultCard = ({ data, taskDescription, section, selectedTools }: ResultCar
     }
 
     // n8n generate button (only if n8n selected)
-    if (n8nSelected) {
+    if (!isLowScore && n8nSelected) {
       sections.push(
         <div key="n8n">
           <SectionLabel>Build This in n8n</SectionLabel>
