@@ -33,14 +33,11 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ResultData | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>(() => getHistory());
-  const [taskPoints, setTaskPoints] = useState<TaskPoint[]>(() => {
-    try {
-      const stored = sessionStorage.getItem("effort-impact-tasks");
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+
+  // Derive matrix points from history so deletes stay in sync
+  const taskPoints: TaskPoint[] = history
+    .filter((e) => e.result.effort_score != null && e.result.impact_score != null)
+    .map((e) => ({ label: e.label, effort: e.result.effort_score!, impact: e.result.impact_score! }));
   const [loadingText, setLoadingText] = useState("Analyzing...");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
@@ -120,14 +117,7 @@ const Index = () => {
       const updatedHistory = addToHistory(entry);
       setHistory(updatedHistory);
 
-      // Store effort/impact for matrix
-      if (data.effort_score != null && data.impact_score != null) {
-        setTaskPoints((prev) => {
-          const updated = [...prev, { label, effort: data.effort_score!, impact: data.impact_score! }];
-          sessionStorage.setItem("effort-impact-tasks", JSON.stringify(updated));
-          return updated;
-        });
-      }
+      // Matrix points are now derived from history, no separate storage needed
     } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
@@ -239,7 +229,7 @@ const Index = () => {
           {/* Results area */}
           <div className="w-full max-w-6xl mx-auto space-y-6">
             {isFullResult ? (
-              <div className="grid lg:grid-cols-[1fr_1fr] gap-6">
+              <div className="grid lg:grid-cols-[1fr_2fr] gap-6">
                 <ResultCard data={result} taskDescription={task} section="verdict" />
                 <div className="space-y-6">
                   {taskPoints.length >= 2 ? (
