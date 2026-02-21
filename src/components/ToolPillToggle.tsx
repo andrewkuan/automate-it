@@ -33,25 +33,30 @@ const ToolPillToggle = ({ selected, onChange }: ToolPillToggleProps) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-2 justify-center">
-      {TOOLS.map((tool) => {
-        const isActive = selected.includes(tool.slug);
-        return (
-          <button
-            key={tool.slug}
-            type="button"
-            onClick={() => toggle(tool.slug)}
-            className={cn(
-              "px-3 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200",
-              isActive
-                ? tool.activeClass
-                : "bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground"
-            )}
-          >
-            {tool.label}
-          </button>
-        );
-      })}
+    <div className="flex flex-col items-center gap-2">
+      <p className="text-xs text-muted-foreground font-medium tracking-wide">
+        Which tools do you use? <span className="text-muted-foreground/60">(select all that apply)</span>
+      </p>
+      <div className="flex flex-wrap gap-2 justify-center">
+        {TOOLS.map((tool) => {
+          const isActive = selected.includes(tool.slug);
+          return (
+            <button
+              key={tool.slug}
+              type="button"
+              onClick={() => toggle(tool.slug)}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200",
+                isActive
+                  ? tool.activeClass
+                  : "bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground"
+              )}
+            >
+              {tool.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };
