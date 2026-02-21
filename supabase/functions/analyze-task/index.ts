@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { task } = await req.json();
+    const { task, selected_tools } = await req.json();
     const apiKey = Deno.env.get("CODEWORDS_API_KEY");
 
     const res = await fetch(API_URL, {
@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
         "x-api-key": apiKey!,
       },
-      body: JSON.stringify({ task_description: task }),
+      body: JSON.stringify({ task_description: task, selected_tools }),
     });
 
     const data = await res.json();

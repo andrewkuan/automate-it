@@ -1,14 +1,16 @@
 import ScoreDial from "./ScoreDial";
 import AIBar from "./AIBar";
 import WorkflowBlueprint from "./WorkflowBlueprint";
-import { Copy } from "lucide-react";
+import GenerateContentButton from "./GenerateContentButton";
 import { toast } from "sonner";
 import { ResultData } from "@/types/analysis";
+import { ToolSlug } from "./ToolPillToggle";
 
 interface ResultCardProps {
   data: ResultData;
   taskDescription: string;
   section: "verdict" | "details" | "all";
+  selectedTools: ToolSlug[];
 }
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
@@ -19,8 +21,11 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 const Divider = () => <div className="h-px bg-border" />;
 
-const ResultCard = ({ data, taskDescription, section }: ResultCardProps) => {
+const ResultCard = ({ data, taskDescription, section, selectedTools }: ResultCardProps) => {
   const isLowScore = data.automate_score < 50;
+  const multipleToolsSelected = selectedTools.length > 1;
+  const codewordsSelected = selectedTools.includes("codewords");
+  const n8nSelected = selectedTools.includes("n8n");
 
   /* ── Verdict section: score, AI bar, why, bottleneck, approach ── */
   const renderVerdict = () => (
@@ -57,7 +62,7 @@ const ResultCard = ({ data, taskDescription, section }: ResultCardProps) => {
     </div>
   );
 
-  /* ── Details section: time, tool, tools list, workflow, codewords ── */
+  /* ── Details section ── */
   const renderDetails = () => {
     const sections: React.ReactNode[] = [];
 
@@ -70,7 +75,8 @@ const ResultCard = ({ data, taskDescription, section }: ResultCardProps) => {
       );
     }
 
-    if (!isLowScore && data.recommended_tool) {
+    // Only show recommended tool if multiple tools selected
+    if (!isLowScore && data.recommended_tool && multipleToolsSelected) {
       sections.push(
         <div key="tool">
           <SectionLabel>Recommended Tool</SectionLabel>
@@ -114,23 +120,34 @@ const ResultCard = ({ data, taskDescription, section }: ResultCardProps) => {
       );
     }
 
-    if (data.codewords_prompt) {
+    // CodeWords generate button (only if codewords selected)
+    if (codewordsSelected) {
       sections.push(
         <div key="codewords">
           <SectionLabel>Build This on CodeWords</SectionLabel>
-          <div className="relative rounded-lg bg-secondary/50 border border-border p-4 font-mono text-sm text-foreground leading-relaxed whitespace-pre-wrap overflow-x-auto">
-            {data.codewords_prompt}
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(data.codewords_prompt!);
-                toast.success("Prompt copied to clipboard!");
-              }}
-              className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
-            >
-              <Copy className="w-3 h-3" />
-              Copy Prompt
-            </button>
-          </div>
+          <GenerateContentButton
+            label="Generate CodeWords Prompt"
+            functionName="generate-codewords-prompt"
+            taskDescription={taskDescription}
+            workflowSteps={data.workflow_steps}
+            responseKey="prompt"
+          />
+        </div>
+      );
+    }
+
+    // n8n generate button (only if n8n selected)
+    if (n8nSelected) {
+      sections.push(
+        <div key="n8n">
+          <SectionLabel>Build This in n8n</SectionLabel>
+          <GenerateContentButton
+            label="Generate n8n Workflow"
+            functionName="generate-n8n-workflow"
+            taskDescription={taskDescription}
+            workflowSteps={data.workflow_steps}
+            responseKey="workflow"
+          />
         </div>
       );
     }

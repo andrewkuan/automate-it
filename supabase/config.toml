@@ -2,3 +2,9 @@ project_id = "lagxjkaelhpqsvexxxvq"
 
 [functions.summarize-task]
 verify_jwt = false
+
+[functions.generate-codewords-prompt]
+verify_jwt = false
+
+[functions.generate-n8n-workflow]
+verify_jwt = false

@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ResultData, TaskPoint, HistoryEntry } from "@/types/analysis";
 import { getHistory, addToHistory } from "@/lib/history";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
+import ToolPillToggle, { ToolSlug } from "@/components/ToolPillToggle";
 
 const placeholderExamples = [
   "Every Monday I manually export a CSV from our CRM, clean the data in Excel, and upload it to Google Sheets for the sales team...",
@@ -45,6 +46,7 @@ const Index = () => {
   const [loadingTextVisible, setLoadingTextVisible] = useState(true);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
+  const [selectedTools, setSelectedTools] = useState<ToolSlug[]>(["codewords", "n8n", "make", "zapier"]);
   const { isListening, isProcessing, isSupported: speechSupported, startListening, stopListening } = useSpeechRecognition();
 
   useEffect(() => {
@@ -122,7 +124,7 @@ const Index = () => {
 
     try {
       const [analyzeResult, summarizeResult] = await Promise.all([
-        supabase.functions.invoke("analyze-task", { body: { task: description } }),
+        supabase.functions.invoke("analyze-task", { body: { task: description, selected_tools: selectedTools } }),
         supabase.functions.invoke("summarize-task", { body: { task: description } }),
       ]);
 
@@ -208,6 +210,7 @@ const Index = () => {
                 </div>
               )}
             </div>
+            <ToolPillToggle selected={selectedTools} onChange={setSelectedTools} />
             <button
               onClick={() => handleSubmit()}
               disabled={loading || !task.trim()}
@@ -288,7 +291,7 @@ const Index = () => {
           <div className="w-full max-w-6xl mx-auto space-y-6 overflow-x-hidden">
             {isFullResult ? (
               <div className="grid md:grid-cols-[320px_1fr] lg:grid-cols-[380px_1fr] gap-6 min-w-0">
-                <ResultCard data={result} taskDescription={fullTaskDescription} section="verdict" />
+                <ResultCard data={result} taskDescription={fullTaskDescription} section="verdict" selectedTools={selectedTools} />
                 <div className="space-y-6 min-w-0">
                   {taskPoints.length >= 2 ? (
                     <div className="rounded-xl bg-card border border-border gradient-border p-4 md:p-6 space-y-4 animate-fade-up min-w-0">
@@ -302,12 +305,12 @@ const Index = () => {
                       Analyze 2+ tasks to see the Effort vs Impact matrix
                     </div>
                   )}
-                  <ResultCard data={result} taskDescription={fullTaskDescription} section="details" />
+                  <ResultCard data={result} taskDescription={fullTaskDescription} section="details" selectedTools={selectedTools} />
                 </div>
               </div>
             ) : (
               <div className="max-w-2xl mx-auto">
-                <ResultCard data={result} taskDescription={fullTaskDescription} section="all" />
+                <ResultCard data={result} taskDescription={fullTaskDescription} section="all" selectedTools={selectedTools} />
               
               </div>
             )}
