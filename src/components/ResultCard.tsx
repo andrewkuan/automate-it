@@ -152,7 +152,7 @@ const ResultCard = ({ data, taskDescription, section }: ResultCardProps) => {
   /* ── Render based on section prop ── */
   if (section === "verdict") {
     return (
-      <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-6 md:p-8 max-h-[calc(100vh-10rem)] overflow-y-auto">
+      <div className="w-full animate-fade-up rounded-xl bg-card border border-border gradient-border p-6 md:p-8">
         {renderVerdict()}
       </div>
     );
