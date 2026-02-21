@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Loader2, Zap, Mic, MicOff, AudioLines } from "lucide-react";
 import { toast } from "sonner";
 import ResultCard from "@/components/ResultCard";
@@ -34,6 +34,7 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ResultData | null>(null);
   const [currentLabel, setCurrentLabel] = useState("");
+  const [fullTaskDescription, setFullTaskDescription] = useState("");
   const [history, setHistory] = useState<HistoryEntry[]>(() => getHistory());
 
   // Derive matrix points from history so deletes stay in sync
@@ -92,6 +93,9 @@ const Index = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const taskRef = useRef(task);
+  taskRef.current = task;
+
   const toggleListening = () => {
     if (!speechSupported) {
       toast.error("Speech recognition is not supported in this browser.");
@@ -101,7 +105,7 @@ const Index = () => {
     if (isListening) {
       stopListening();
     } else {
-      startListening(task, (text) => setTask(text));
+      startListening(taskRef.current, (text) => setTask(text));
     }
   };
 
@@ -128,6 +132,8 @@ const Index = () => {
 
       setResult(data);
       setCurrentLabel(label);
+      setFullTaskDescription(description);
+      setTask("");
 
       // Save to history
       const entry: HistoryEntry = {
@@ -149,9 +155,10 @@ const Index = () => {
   };
 
   const handleReview = (entry: HistoryEntry) => {
-    setTask(entry.task);
+    setTask("");
     setResult(entry.result);
     setCurrentLabel(entry.label);
+    setFullTaskDescription(entry.task);
   };
 
   const hasResult = !!result;
@@ -270,7 +277,10 @@ const Index = () => {
           {currentLabel && (
             <div className="flex flex-col items-center gap-1 mb-2">
               <h2 className="text-xl font-bold text-foreground tracking-tight">{currentLabel}</h2>
-              <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">Current task</span>
+              {fullTaskDescription && (
+                <p className="text-sm text-muted-foreground max-w-xl text-center mt-1">{fullTaskDescription}</p>
+              )}
+              <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full mt-1">Current task</span>
             </div>
           )}
 
@@ -278,7 +288,7 @@ const Index = () => {
           <div className="w-full max-w-6xl mx-auto space-y-6">
             {isFullResult ? (
               <div className="grid lg:grid-cols-[380px_1fr] gap-6">
-                <ResultCard data={result} taskDescription={task} section="verdict" />
+                <ResultCard data={result} taskDescription={fullTaskDescription} section="verdict" />
                 <div className="space-y-6">
                   {taskPoints.length >= 2 ? (
                     <div className="rounded-xl bg-card border border-border gradient-border p-6 space-y-4 animate-fade-up">
@@ -292,12 +302,12 @@ const Index = () => {
                       Analyze 2+ tasks to see the Effort vs Impact matrix
                     </div>
                   )}
-                  <ResultCard data={result} taskDescription={task} section="details" />
+                  <ResultCard data={result} taskDescription={fullTaskDescription} section="details" />
                 </div>
               </div>
             ) : (
               <div className="max-w-2xl mx-auto">
-                <ResultCard data={result} taskDescription={task} section="all" />
+                <ResultCard data={result} taskDescription={fullTaskDescription} section="all" />
               
               </div>
             )}
