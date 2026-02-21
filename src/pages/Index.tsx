@@ -165,7 +165,7 @@ const Index = () => {
   const isFullResult = hasResult && result.automate_score >= 50;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col px-4 py-6 md:py-10">
+    <div className="min-h-screen bg-background flex flex-col px-4 py-6 md:py-10 overflow-x-hidden">
       {!hasResult ? (
         <div className="flex flex-col items-center w-full max-w-2xl mx-auto space-y-10 pt-8 md:pt-14">
           <div className="text-center space-y-3">
@@ -285,13 +285,13 @@ const Index = () => {
           )}
 
           {/* Results area */}
-          <div className="w-full max-w-6xl mx-auto space-y-6">
+          <div className="w-full max-w-6xl mx-auto space-y-6 overflow-x-hidden">
             {isFullResult ? (
-              <div className="grid md:grid-cols-[320px_1fr] lg:grid-cols-[380px_1fr] gap-6">
+              <div className="grid md:grid-cols-[320px_1fr] lg:grid-cols-[380px_1fr] gap-6 min-w-0">
                 <ResultCard data={result} taskDescription={fullTaskDescription} section="verdict" />
-                <div className="space-y-6">
+                <div className="space-y-6 min-w-0">
                   {taskPoints.length >= 2 ? (
-                    <div className="rounded-xl bg-card border border-border gradient-border p-6 space-y-4 animate-fade-up">
+                    <div className="rounded-xl bg-card border border-border gradient-border p-4 md:p-6 space-y-4 animate-fade-up min-w-0">
                       <h3 className="text-xs font-semibold uppercase tracking-widest text-primary">
                         Effort vs Impact Matrix
                       </h3>

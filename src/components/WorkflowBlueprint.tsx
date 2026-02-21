@@ -28,7 +28,7 @@ const nodeConfig: Record<string, { color: string; bg: string; border: string; Ic
 const WorkflowBlueprint = ({ steps }: WorkflowBlueprintProps) => {
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="flex items-center gap-0 overflow-x-auto pb-2">
+      <div className="flex items-center gap-0 overflow-x-auto pb-2 min-w-0">
         {steps.map((step, i) => {
           const config = nodeConfig[step.node_type] || nodeConfig.action;
           const { Icon } = config;
