@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, Zap, Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
 import ResultCard from "@/components/ResultCard";
@@ -7,6 +7,7 @@ import SearchHistory from "@/components/SearchHistory";
 import { supabase } from "@/integrations/supabase/client";
 import { ResultData, TaskPoint, HistoryEntry } from "@/types/analysis";
 import { getHistory, addToHistory } from "@/lib/history";
+import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 
 const placeholderExamples = [
   "Every Monday I manually export a CSV from our CRM, clean the data in Excel, and upload it to Google Sheets for the sales team...",
@@ -43,10 +44,7 @@ const Index = () => {
   const [loadingTextVisible, setLoadingTextVisible] = useState(true);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
-  const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<any>(null);
-  const isListeningRef = useRef(false);
-  const accumulatedTextRef = useRef("");
+  const { isListening, isSupported: speechSupported, startListening, stopListening } = useSpeechRecognition();
 
   useEffect(() => {
     if (task) return;
@@ -94,82 +92,19 @@ const Index = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   const toggleListening = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    if (!speechSupported) {
       toast.error("Speech recognition is not supported in this browser.");
       return;
     }
 
-    if (isListeningRef.current && recognitionRef.current) {
-      isListeningRef.current = false;
-      recognitionRef.current.stop();
-      setIsListening(false);
-      return;
-    }
-
-    accumulatedTextRef.current = task;
-    let processedUpTo = 0;
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = "en-US";
-
-    recognition.onresult = (event: any) => {
-      let interimTranscript = "";
-      for (let i = processedUpTo; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result.isFinal) {
-          accumulatedTextRef.current = (accumulatedTextRef.current + " " + result[0].transcript).trim();
-          processedUpTo = i + 1;
-        } else {
-          interimTranscript += result[0].transcript;
-        }
-      }
-      const combined = (accumulatedTextRef.current + (interimTranscript ? " " + interimTranscript : "")).trim();
-      setTask(combined);
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error("Speech recognition error:", event.error);
-      if (event.error === "not-allowed") {
-        toast.error("Microphone permission denied.");
-        isListeningRef.current = false;
-        setIsListening(false);
-      }
-      // no-speech is normal timeout, onend handles restart
-    };
-
-    recognition.onend = () => {
-      if (isListeningRef.current) {
-        processedUpTo = 0; // reset since event.results resets on restart
-        setTimeout(() => {
-          try { recognition.start(); } catch {}
-        }, 300);
-      } else {
-        setIsListening(false);
-      }
-    };
-
-    recognitionRef.current = recognition;
-    isListeningRef.current = true;
-    try {
-      recognition.start();
-      setIsListening(true);
-    } catch (e) {
-      console.error("Failed to start speech recognition:", e);
-      toast.error("Failed to start speech recognition.");
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening(task, (text) => setTask(text));
     }
   };
 
-  useEffect(() => {
-    return () => {
-      isListeningRef.current = false;
-      recognitionRef.current?.stop();
-    };
-  }, []);
 
   const handleSubmit = async (taskText?: string) => {
     const description = taskText || task;
